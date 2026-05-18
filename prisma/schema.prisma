@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String        @id @default(cuid())
+  name              String
+  email             String        @unique
+  emailVerified     Boolean       @default(false)
+  image             String?
+  role              String        @default("user")
+  isParticipant     Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  raffleEntries     RaffleEntry[]
+  prizesWon         RafflePrize[] @relation("winner")
+  prizesTransferred RafflePrize[] @relation("transferredTo")
+  queryLogs         QueryLog[]
+  transfersSent     TransferLog[] @relation("transferFrom")
+  transfersReceived TransferLog[] @relation("transferTo")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model RaffleEntry {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RafflePrize {
+  id              String        @id @default(cuid())
+  prizeNumber     Int           @unique
+  description     String
+  winnerId        String?
+  transferredToId String?
+  drawnAt         DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  winner          User?         @relation("winner", fields: [winnerId], references: [id])
+  transferredTo   User?         @relation("transferredTo", fields: [transferredToId], references: [id])
+  transferLogs    TransferLog[]
+}
+
+model TransferLog {
+  id         String      @id @default(cuid())
+  prizeId    String
+  fromUserId String
+  toUserId   String
+  createdAt  DateTime    @default(now())
+  prize      RafflePrize @relation(fields: [prizeId], references: [id])
+  fromUser   User        @relation("transferFrom", fields: [fromUserId], references: [id])
+  toUser     User        @relation("transferTo", fields: [toUserId], references: [id])
+}
+
+model RaffleEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  eventDate   DateTime
+  location    String?
+  isActive    Boolean   @default(true)
+  drawnAt     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model QueryLog {
+  id        String   @id @default(cuid())
+  userId    String
+  sql       String
+  duration  Int
+  rowCount  Int?
+  error     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

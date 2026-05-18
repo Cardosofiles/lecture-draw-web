@@ -1,0 +1,625 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@300..700&display=swap");
+@import "tailwindcss";
+
+/* ─── HUD / Cyberpunk Dark Palette ─────────────────────────────── */
+:root {
+  --vscode-bg: #03060c;
+  --vscode-sidebar: #060b16;
+  --vscode-activity-bar: #0a1426;
+  --vscode-tab-active: #060b16;
+  --vscode-tab-inactive: #03060c;
+  --vscode-border: rgba(0, 200, 255, 0.14);
+  --vscode-text: #e5f1ff;
+  --vscode-text-muted: #7b95b8;
+  --vscode-accent: #00e5ff;
+  --vscode-accent-dim: rgba(0, 229, 255, 0.55);
+  --vscode-accent-ghost: rgba(0, 229, 255, 0.18);
+  --vscode-blue: #5aa9ff;
+  --vscode-magenta: #ff39d2;
+  --vscode-magenta-dim: rgba(255, 57, 210, 0.5);
+  --vscode-orange: #ff9e2c;
+  --vscode-green: #2cf2a3;
+  --vscode-red: #ff4d6d;
+  --vscode-text-mute: #4a607e;
+  --vscode-status-bar: #00e5ff;
+
+  /* Grid overlay */
+  --grid: rgba(0, 200, 255, 0.06);
+  --grid-strong: rgba(0, 200, 255, 0.14);
+
+  /* Typography */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+/* ─── Tailwind v4 Theme Tokens ──────────────────────────────────── */
+@theme inline {
+  --color-background: var(--vscode-bg);
+  --color-foreground: var(--vscode-text);
+  --color-sidebar: var(--vscode-sidebar);
+  --color-activity-bar: var(--vscode-activity-bar);
+  --color-accent: var(--vscode-accent);
+  --color-border: var(--vscode-border);
+  --color-muted: var(--vscode-text-muted);
+  --color-green: var(--vscode-green);
+  --color-magenta: var(--vscode-magenta);
+  --color-orange: var(--vscode-orange);
+  --color-red: var(--vscode-red);
+  --color-blue: var(--vscode-blue);
+
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+}
+
+/* ─── Global Resets ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--vscode-bg);
+  color: var(--vscode-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* ─── Scrollbar Styling ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--vscode-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vscode-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-accent-dim);
+}
+
+/* ─── Grid Background ───────────────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.grid-bg-strong {
+  background-image:
+    linear-gradient(var(--grid-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ─── Glow Effects ──────────────────────────────────────────────── */
+.glow-accent {
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.3),
+    0 0 60px rgba(0, 229, 255, 0.1);
+}
+
+.glow-magenta {
+  box-shadow:
+    0 0 20px rgba(255, 57, 210, 0.3),
+    0 0 60px rgba(255, 57, 210, 0.1);
+}
+
+.glow-green {
+  box-shadow:
+    0 0 20px rgba(44, 242, 163, 0.3),
+    0 0 60px rgba(44, 242, 163, 0.1);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px var(--vscode-accent);
+}
+
+/* ─── VS Code Shell Layout ──────────────────────────────────────── */
+.vscode-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--vscode-bg);
+}
+
+.vscode-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.vscode-activity-bar {
+  width: 48px;
+  min-width: 48px;
+  background: var(--vscode-activity-bar);
+  border-right: 1px solid var(--vscode-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 2px;
+  z-index: 10;
+}
+
+.vscode-sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--vscode-sidebar);
+  border-right: 1px solid var(--vscode-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.vscode-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--vscode-bg);
+}
+
+.vscode-status-bar {
+  height: 24px;
+  background: var(--vscode-accent);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* ─── Tab Bar ───────────────────────────────────────────────────── */
+.vscode-tab-bar {
+  height: 36px;
+  background: var(--vscode-tab-inactive);
+  border-bottom: 1px solid var(--vscode-border);
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.vscode-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  min-width: 120px;
+  border-right: 1px solid var(--vscode-border);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--vscode-text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+  white-space: nowrap;
+  position: relative;
+}
+
+.vscode-tab.active {
+  background: var(--vscode-tab-active);
+  color: var(--vscode-text);
+}
+
+.vscode-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--vscode-accent);
+}
+
+/* ─── Activity Bar Icons ────────────────────────────────────────── */
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--vscode-text-muted);
+  transition:
+    color 0.15s,
+    background 0.15s;
+  position: relative;
+}
+
+.activity-icon:hover {
+  color: var(--vscode-text);
+  background: var(--vscode-accent-ghost);
+}
+
+.activity-icon.active {
+  color: var(--vscode-accent);
+}
+
+.activity-icon.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--vscode-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+/* ─── Sidebar Tree ──────────────────────────────────────────────── */
+.sidebar-header {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vscode-text-muted);
+  border-bottom: 1px solid var(--vscode-border);
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--vscode-text-muted);
+  transition:
+    background 0.12s,
+    color 0.12s;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+
+.sidebar-item:hover {
+  background: var(--vscode-accent-ghost);
+  color: var(--vscode-text);
+}
+
+.sidebar-item.active {
+  background: var(--vscode-accent-ghost);
+  color: var(--vscode-accent);
+  border-left-color: var(--vscode-accent);
+}
+
+/* ─── SQL Console ───────────────────────────────────────────────── */
+.sql-editor {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: #030509;
+  color: var(--vscode-text);
+  border: 1px solid var(--vscode-border);
+  border-radius: 6px;
+  padding: 12px 12px 12px 48px;
+  resize: vertical;
+  width: 100%;
+  outline: none;
+  caret-color: var(--vscode-accent);
+  counter-reset: line-numbers;
+}
+
+.sql-editor:focus {
+  border-color: var(--vscode-accent-dim);
+  box-shadow: 0 0 0 1px var(--vscode-accent-dim);
+}
+
+/* ─── Winner Card ───────────────────────────────────────────────── */
+.winner-card {
+  background: linear-gradient(135deg, #070e1d 0%, #0a1528 100%);
+  border: 1px solid var(--vscode-border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.winner-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--vscode-accent-ghost) 0%,
+    transparent 50%,
+    var(--vscode-magenta-dim) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.winner-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(0, 229, 255, 0.15);
+}
+
+.winner-card:hover::before {
+  opacity: 0.3;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #00b8cc 0%, #0099aa 100%);
+  color: #000;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-accent {
+  background: transparent;
+  color: var(--vscode-accent);
+  font-weight: 600;
+  border: 1px solid var(--vscode-accent-dim);
+  border-radius: 6px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.btn-accent:hover {
+  background: var(--vscode-accent-ghost);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--vscode-red);
+  border: 1px solid rgba(255, 77, 109, 0.4);
+  border-radius: 6px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 77, 109, 0.1);
+}
+
+/* ─── Chip / Badge ──────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.badge-accent {
+  background: var(--vscode-accent-ghost);
+  color: var(--vscode-accent);
+  border: 1px solid var(--vscode-accent-dim);
+}
+
+.badge-green {
+  background: rgba(44, 242, 163, 0.12);
+  color: var(--vscode-green);
+  border: 1px solid rgba(44, 242, 163, 0.3);
+}
+
+.badge-magenta {
+  background: var(--vscode-magenta-dim);
+  color: var(--vscode-magenta);
+  border: 1px solid rgba(255, 57, 210, 0.4);
+}
+
+.badge-muted {
+  background: rgba(74, 96, 126, 0.2);
+  color: var(--vscode-text-muted);
+  border: 1px solid rgba(74, 96, 126, 0.3);
+}
+
+/* ─── Animations ────────────────────────────────────────────────── */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(0, 229, 255, 0.7),
+      0 0 60px rgba(0, 229, 255, 0.3);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ─── Lottery Ring Animation ────────────────────────────────────── */
+.lottery-ring {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+}
+
+.lottery-ring-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--vscode-bg), var(--vscode-bg)) padding-box,
+    conic-gradient(
+        var(--vscode-accent) 0%,
+        var(--vscode-magenta) 33%,
+        var(--vscode-blue) 66%,
+        var(--vscode-accent) 100%
+      )
+      border-box;
+  animation: spin-slow 3s linear infinite;
+}
+
+/* ─── Table ─────────────────────────────────────────────────────── */
+.vscode-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+
+.vscode-table th {
+  background: var(--vscode-activity-bar);
+  color: var(--vscode-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--vscode-border);
+}
+
+.vscode-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+  color: var(--vscode-text);
+}
+
+.vscode-table tr:hover td {
+  background: var(--vscode-accent-ghost);
+}
+
+/* ─── Input ─────────────────────────────────────────────────────── */
+.vscode-input {
+  background: #030509;
+  border: 1px solid var(--vscode-border);
+  border-radius: 4px;
+  color: var(--vscode-text);
+  font-size: 13px;
+  font-family: var(--font-body);
+  padding: 6px 10px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.vscode-input:focus {
+  border-color: var(--vscode-accent-dim);
+}
+
+.vscode-input::placeholder {
+  color: var(--vscode-text-mute);
+}
+
+/* ─── Mobile ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+
+  .vscode-shell {
+    height: 100dvh;
+  }
+
+  .vscode-activity-bar {
+    display: none;
+  }
+
+  .vscode-sidebar {
+    display: none;
+  }
+
+  .vscode-mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--vscode-activity-bar);
+    border-top: 1px solid var(--vscode-border);
+    z-index: 50;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+  }
+}
+
+@media (min-width: 769px) {
+  .vscode-mobile-nav {
+    display: none;
+  }
+}
