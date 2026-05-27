@@ -114,8 +114,8 @@ export function TechStackSection() {
           <span style={{ color: "var(--vscode-magenta)" }}>Prêmio</span>
         </h3>
         <p style={{ fontSize: "14px", color: "var(--vscode-text-muted)" }}>
-          O ganhador receberá o computador formatado (Windows 11 ou Ubuntu) com
-          todo o ecossistema abaixo pré-configurado:
+          O ganhador receberá um configuração formatada (Windows 11 ou Ubuntu)
+          com todo o ecossistema abaixo configurado:
         </p>
       </div>
 

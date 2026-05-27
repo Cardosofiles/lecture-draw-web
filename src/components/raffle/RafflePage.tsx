@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shuffle, Trophy, Loader2, Zap } from "lucide-react";
 import { drawRaffle } from "@/actions/raffle";
@@ -53,6 +53,16 @@ export function RafflePage({ prizes, event, currentUserId, isAdmin }: Props) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [localPrizes, setLocalPrizes] = useState(prizes);
+  const localHasDrawnRef = useRef(prizes.some((p) => p.winnerId));
+
+  // Sync when RaffleNotifier triggers router.refresh() and server delivers drawn prizes
+  useEffect(() => {
+    const serverHasDrawn = prizes.some((p) => p.winnerId);
+    if (serverHasDrawn && !localHasDrawnRef.current) {
+      localHasDrawnRef.current = true;
+      setLocalPrizes(prizes);
+    }
+  }, [prizes]);
 
   const hasBeenDrawn = localPrizes.some((p) => p.winnerId);
 

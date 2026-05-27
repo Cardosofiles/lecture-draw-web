@@ -8,6 +8,7 @@ import { TabBar } from "@/components/vscode/TabBar";
 import { StatusBar } from "@/components/vscode/StatusBar";
 import { Terminal } from "@/components/vscode/Terminal";
 import { MobileNav } from "@/components/vscode/MobileNav";
+import { RaffleNotifier } from "@/components/raffle/RaffleNotifier";
 
 export default async function DashboardLayout({
   children,
@@ -50,6 +51,9 @@ export default async function DashboardLayout({
 
       {/* Mobile Bottom Nav */}
       <MobileNav isAdmin={isAdmin} />
+
+      {/* Global raffle notifier — polls until draw, shows winner modal */}
+      <RaffleNotifier currentUserId={session.user.id} />
     </div>
   );
 }

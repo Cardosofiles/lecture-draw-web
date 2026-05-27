@@ -1,15 +1,9 @@
-import Link from "next/link";
 import type { JSX } from "react";
 
+import { redirect } from "next/navigation";
+
 const Home = (): JSX.Element => {
-  return (
-    <div>
-      <h2>Home</h2>
-      <button>
-        <Link href="/login">Go to Dashboard</Link>
-      </button>
-    </div>
-  );
+  return redirect("/login");
 };
 
 export default Home;

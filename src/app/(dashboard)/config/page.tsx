@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useSession } from "@/lib/auth-client";
+import { authClient, useSession } from "@/lib/auth-client";
 import { deleteAccount } from "@/actions/users";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Trash2, User, AlertTriangle, X } from "lucide-react";
+import { Trash2, User, AlertTriangle, X, LogOut, Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ConfigPage() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const user = session?.user;
   const isConfirmed = confirmText === "EXCLUIR";
@@ -19,6 +23,12 @@ export default function ConfigPage() {
     startTransition(async () => {
       await deleteAccount();
     });
+  }
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await authClient.signOut();
+    router.push("/login");
   }
 
   function handleOpenChange(v: boolean) {
@@ -88,15 +98,16 @@ export default function ConfigPage() {
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             {user.image && (
-              <img
+              <Image
                 src={user.image}
                 alt={user.name}
+                width={48}
+                height={48}
                 style={{
-                  width: 48,
-                  height: 48,
                   borderRadius: "50%",
                   border: "2px solid var(--vscode-border)",
                   flexShrink: 0,
+                  objectFit: "cover",
                 }}
               />
             )}
@@ -150,6 +161,57 @@ export default function ConfigPage() {
             Carregando...
           </p>
         )}
+
+        {/* Separator */}
+        <div
+          style={{
+            height: "1px",
+            background: "var(--vscode-border)",
+            margin: "16px 0",
+          }}
+        />
+
+        {/* Sign out */}
+        <button
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+            padding: "9px 12px",
+            borderRadius: "6px",
+            background: "transparent",
+            border: "1px solid var(--vscode-border)",
+            color: isSigningOut
+              ? "var(--vscode-text-mute)"
+              : "var(--vscode-text-muted)",
+            cursor: isSigningOut ? "not-allowed" : "pointer",
+            fontSize: "13px",
+            fontWeight: 500,
+            transition: "background 0.15s, border-color 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            if (!isSigningOut)
+              (e.currentTarget as HTMLButtonElement).style.background =
+                "rgba(255,255,255,0.04)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background =
+              "transparent";
+          }}
+        >
+          {isSigningOut ? (
+            <Loader2
+              size={14}
+              style={{ animation: "spin 1s linear infinite", flexShrink: 0 }}
+            />
+          ) : (
+            <LogOut size={14} style={{ flexShrink: 0 }} />
+          )}
+          {isSigningOut ? "Saindo..." : "Sair da conta"}
+        </button>
       </section>
 
       {/* Danger Zone */}

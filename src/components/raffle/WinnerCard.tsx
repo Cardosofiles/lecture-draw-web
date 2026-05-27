@@ -72,21 +72,48 @@ export function WinnerCard({ prize, currentUserId }: Props) {
   const colors = prizeColors[(prize.prizeNumber - 1) % prizeColors.length];
   const effectiveWinner = prize.transferredTo ?? prize.winner;
   const isCurrentUserWinner = prize.winnerId === currentUserId;
+  const isWinnerAndKept = isCurrentUserWinner && !prize.transferredToId;
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
       style={{
         background: "linear-gradient(135deg, #070e1d 0%, #0a1528 100%)",
-        border: `1px solid ${colors.border}`,
+        border: isWinnerAndKept
+          ? "1px solid rgba(44,242,163,0.7)"
+          : `1px solid ${colors.border}`,
         borderRadius: "14px",
         padding: "20px",
         position: "relative",
         overflow: "hidden",
-        boxShadow: `0 0 24px ${colors.glow}`,
+        boxShadow: isWinnerAndKept
+          ? "0 0 32px rgba(44,242,163,0.35), 0 0 64px rgba(44,242,163,0.1)"
+          : `0 0 24px ${colors.glow}`,
         cursor: "default",
       }}
     >
+      {/* "VOCÊ GANHOU!" banner */}
+      {isWinnerAndKept && (
+        <motion.div
+          animate={{ opacity: [0.75, 1, 0.75] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            marginBottom: "14px",
+            padding: "6px 12px",
+            borderRadius: "8px",
+            background: "rgba(44,242,163,0.1)",
+            border: "1px solid rgba(44,242,163,0.35)",
+            fontSize: "11px",
+            fontWeight: 700,
+            color: "var(--vscode-green)",
+            textAlign: "center",
+            letterSpacing: "0.06em",
+          }}
+        >
+          ⭐ VOCÊ GANHOU!
+        </motion.div>
+      )}
+
       {/* Top glow line */}
       <div
         style={{
