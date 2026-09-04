@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { getSchemaBrowser, getQueryHistory } from '@/actions/sql-console'
-import { SqlConsoleView } from '@/components/sql/SqlConsoleView'
+import { SqlConsoleView } from '@/modules/dashboard/sql-console/ui/views/sql-console-view'
 
 export const metadata = { title: 'SQL Console — AI Lecture Raffle' }
 

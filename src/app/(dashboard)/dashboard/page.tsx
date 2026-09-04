@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { getParticipantCount } from '@/actions/users'
-import { DashboardHome } from '@/components/dashboard/DashboardHome'
+import { DashboardHome } from '@/modules/dashboard/dashboard/ui/views/dashboard-home'
 
 export const metadata = {
   title: 'Início — AI Lecture Raffle',

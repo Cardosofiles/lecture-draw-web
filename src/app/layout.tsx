@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { Providers } from '@/components/providers'
+import { Providers } from '@/shared/providers/providers'
 import { inter, jetbrainsMono, spaceGrotesk } from '@/shared/utils/fonts'
 import { SITE } from '@/shared/utils/seo/site'
 

@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shuffle, Trophy, Loader2, Zap } from 'lucide-react'
 import { drawRaffle } from '@/actions/raffle'
-import { WinnerCard } from './WinnerCard'
+import { WinnerCard } from '../components/winner-card'
 import { useRouter } from 'next/navigation'
 
 interface User {
@@ -48,7 +48,7 @@ const avatarOrbit = [
   { emoji: '👨‍🎨', delay: 1.5 },
 ]
 
-export function RafflePage({ prizes, event, currentUserId, isAdmin }: Props) {
+export function RaffleView({ prizes, event, currentUserId, isAdmin }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
