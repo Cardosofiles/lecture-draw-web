@@ -23,6 +23,13 @@
 # misc
 .DS_Store
 *.pem
+*.key
+*.dump
+
+# dumps locais de banco
+docker/initdb/*.sql
+docker/initdb/*.sql.gz
+docker/initdb/*.dump
 
 # debug
 npm-debug.log*
@@ -45,3 +52,5 @@ next-env.d.ts
 # local test/debug artifacts
 /.playwright-mcp/
 /login-*.png
+.claude/
+
