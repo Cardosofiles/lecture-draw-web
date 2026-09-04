@@ -2,14 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Ticket, Users, Gift, Terminal, LayoutDashboard } from 'lucide-react'
+import { Ticket, Users, Gift, Terminal, LayoutDashboard, Settings } from 'lucide-react'
 
+/**
+ * Abaixo de 768px a ActivityBar e a Sidebar somem (`display: none` em
+ * globals.css), e elas eram as únicas portas para `/config` — a página que tem
+ * o botão de sair. No celular o participante ficava sem nenhuma forma de fazer
+ * logoff. Por isso `/config` também entra aqui, como último item.
+ */
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Início' },
   { href: '/raffle', icon: Ticket, label: 'Sorteio' },
   { href: '/participants', icon: Users, label: 'Pessoas' },
   { href: '/transfer', icon: Gift, label: 'Transferir' },
   { href: '/sql-console', icon: Terminal, label: 'SQL', adminOnly: true },
+  { href: '/config', icon: Settings, label: 'Conta' },
 ]
 
 export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {

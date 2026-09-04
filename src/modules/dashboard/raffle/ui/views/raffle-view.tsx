@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shuffle, Trophy, Loader2, Zap } from 'lucide-react'
-import { drawRaffle } from '@/actions/raffle'
+import { drawRaffleAction } from '@/actions/raffle'
 import { WinnerCard } from '../components/winner-card'
 import { useRouter } from 'next/navigation'
 
@@ -69,13 +69,15 @@ export function RaffleView({ prizes, event, currentUserId, isAdmin }: Props) {
   const handleDraw = () => {
     setError(null)
     startTransition(async () => {
-      try {
-        const results = await drawRaffle()
-        setLocalPrizes(results as RafflePrize[])
-        router.refresh()
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Erro ao realizar sorteio')
+      // A recusa vem como dado (`ok: false`), não como exceção: em produção o
+      // Next.js apaga a mensagem de qualquer erro lançado por uma Server Action.
+      const result = await drawRaffleAction()
+      if (!result.ok) {
+        setError(result.error)
+        return
       }
+      setLocalPrizes(result.data as RafflePrize[])
+      router.refresh()
     })
   }
 

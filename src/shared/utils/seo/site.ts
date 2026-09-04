@@ -60,6 +60,6 @@ const PRIVATE_PATHS = [
 /**
  * Rotas públicas indexáveis — alimentam o `sitemap.ts`.
  */
-const PUBLIC_PATHS = ['/', '/login'] as const
+const PUBLIC_PATHS = ['/', '/login', '/privacidade', '/creditos'] as const
 
 export { PRIVATE_PATHS, PUBLIC_PATHS, SITE }
