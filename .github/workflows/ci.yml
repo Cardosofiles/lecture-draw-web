@@ -1,0 +1,265 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Um push novo no mesmo branch cancela a execução anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Credenciais de mentira: nenhum job faz OAuth de verdade, mas `betterAuth()`
+  # e o `next build` exigem que as variáveis existam. O banco de verdade nunca
+  # é tocado pelo CI — cada job sobe seu próprio Postgres em container.
+  BETTER_AUTH_SECRET: ci-only-secret-nao-usar-em-producao-00000000
+  BETTER_AUTH_URL: http://localhost:3000
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  GOOGLE_CLIENT_ID: ci-google-client-id
+  GOOGLE_CLIENT_SECRET: ci-google-client-secret
+  GITHUB_CLIENT_ID: ci-github-client-id
+  GITHUB_CLIENT_SECRET: ci-github-client-secret
+  ADMIN_EMAIL: admin@ci.local
+
+jobs:
+  # ── Qualidade de código ──────────────────────────────────────────────────
+  quality:
+    name: Qualidade de código
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Prisma Client em dia com o schema
+        # O client gerado é versionado; se `prisma generate` produzir algo
+        # diferente do que está no repo, alguém mexeu no schema e esqueceu de
+        # rodar `pnpm db:generate`.
+        run: |
+          pnpm db:generate
+          git diff --exit-code -- src/generated/prisma \
+            || { echo "::error::src/generated/prisma está desatualizado — rode 'pnpm db:generate' e commite."; exit 1; }
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  # ── Seed ─────────────────────────────────────────────────────────────────
+  seed:
+    name: Seed
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: lecture
+          POSTGRES_PASSWORD: lecture
+          POSTGRES_DB: lecture_draw
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lecture -d lecture_draw"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://lecture:lecture@localhost:5432/lecture_draw
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+
+      - name: Schema aplica em banco vazio
+        run: pnpm db:push
+
+      - name: Seed roda
+        run: pnpm db:seed
+
+      - name: Seed é idempotente
+        # Reexecutar o seed é rotina antes do evento (corrigir data, promover o
+        # admin). Rodar duas vezes não pode duplicar prêmio nem evento.
+        run: pnpm db:seed
+
+      - name: Estado final confere
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -t -A -c \
+            'SELECT count(*) FROM "RafflePrize"' | tee /tmp/prizes
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -t -A -c \
+            'SELECT count(*) FROM "RaffleEvent" WHERE "isActive"' | tee /tmp/events
+          test "$(cat /tmp/prizes)" = "5" || { echo "::error::esperado 5 prêmios, veio $(cat /tmp/prizes)"; exit 1; }
+          test "$(cat /tmp/events)" = "1" || { echo "::error::esperado 1 evento ativo, veio $(cat /tmp/events)"; exit 1; }
+
+  # ── Testes ───────────────────────────────────────────────────────────────
+  test:
+    name: Testes
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: lecture
+          POSTGRES_PASSWORD: lecture
+          POSTGRES_DB: lecture_draw
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lecture -d lecture_draw"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://lecture:lecture@localhost:5432/lecture_draw
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+
+      - name: Preparar banco
+        run: |
+          pnpm db:push
+          pnpm db:seed
+
+      - name: Vitest (unit + integração)
+        run: pnpm test
+
+  # ── Rate limit ponta a ponta ─────────────────────────────────────────────
+  rate-limit:
+    name: Rate limit do login
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: lecture
+          POSTGRES_PASSWORD: lecture
+          POSTGRES_DB: lecture_draw
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lecture -d lecture_draw"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://lecture:lecture@localhost:5432/lecture_draw
+      BETTER_AUTH_URL: http://localhost:3100
+      NEXT_PUBLIC_APP_URL: http://localhost:3100
+      BASE_URL: http://localhost:3100
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+
+      - name: Preparar banco
+        run: |
+          pnpm db:push
+          pnpm db:seed
+
+      - name: Build de produção
+        # Precisa ser build de produção: o rate limit do Better Auth só liga
+        # sozinho fora de dev, e é o comportamento de produção que interessa.
+        run: pnpm build
+
+      - name: Subir servidor
+        run: |
+          pnpm start -p 3100 > /tmp/server.log 2>&1 &
+          echo $! > /tmp/server.pid
+          for _ in $(seq 1 60); do
+            curl -sf -o /dev/null -H 'x-forwarded-for: 203.0.113.9' \
+              http://localhost:3100/api/auth/get-session && exit 0
+            sleep 1
+          done
+          echo "::error::servidor não subiu"; cat /tmp/server.log; exit 1
+
+      - name: Validar limites
+        run: pnpm verify:rate-limit
+
+      - name: Log do servidor em caso de falha
+        if: failure()
+        run: cat /tmp/server.log
+
+      - name: Derrubar servidor
+        if: always()
+        run: kill "$(cat /tmp/server.pid)" 2>/dev/null || true
+
+  # ── Auditoria ────────────────────────────────────────────────────────────
+  audit:
+    name: Auditoria de dependências
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Vulnerabilidades conhecidas (moderate+)
+        run: pnpm audit --audit-level moderate
+
+      - name: Lockfile bate com o package.json
+        # `--frozen-lockfile` acima já falharia, mas a mensagem aqui é explícita.
+        run: pnpm install --frozen-lockfile --lockfile-only --dry-run
+
+      - name: Dependências desatualizadas (informativo)
+        continue-on-error: true
+        run: pnpm outdated
+
+  # ── Prontidão do banco real (opcional) ───────────────────────────────────
+  neon-readiness:
+    name: Prontidão do Neon
+    runs-on: ubuntu-latest
+    # Só sob demanda ("Run workflow" na aba Actions). Este job fica vermelho
+    # até 5 pessoas terem logado — é o botão "dá para sortear?" antes da
+    # palestra, não um portão de todo commit. Nunca roda em PR: segredos não
+    # são expostos para forks.
+    if: github.event_name == 'workflow_dispatch'
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Segredo configurado?
+        id: guard
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::notice::secrets.DATABASE_URL não configurado — pulando."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.guard.outputs.run == 'true'
+      - uses: actions/setup-node@v6
+        if: steps.guard.outputs.run == 'true'
+        with:
+          node-version: 24
+          cache: pnpm
+      - if: steps.guard.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: steps.guard.outputs.run == 'true'
+        run: pnpm db:generate
+
+      - name: Só leitura — o evento está pronto para o sorteio?
+        # Nenhum `db:push` e nenhum `db:seed` aqui: este job não escreve no
+        # banco de produção. A suíte de integração roda em transação e faz
+        # rollback, então é segura, mas mesmo assim só rodamos as asserções.
+        if: steps.guard.outputs.run == 'true'
+        env:
+          READINESS: "1"
+        run: pnpm test:integration

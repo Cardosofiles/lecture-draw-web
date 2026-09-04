@@ -16,6 +16,32 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
   },
+  // A plateia inteira sai pelo mesmo IP do NAT da rede do local, então a chave
+  // do rate limit ("<ip>|<path>") é UMA para os ~400 participantes, não uma por
+  // pessoa. Os defaults do Better Auth (3 req/10s em /sign-in*, 100 req/10s no
+  // resto) viram, na prática, o teto da sala inteira e derrubariam o login nos
+  // primeiros minutos do evento. Os limites abaixo são dimensionados para a
+  // sala, mantendo um teto que ainda barra abuso vindo de um IP único.
+  rateLimit: {
+    // O default só liga em produção; ligar sempre faz dev e CI exercitarem
+    // exatamente o limite que vai para o ar.
+    enabled: true,
+    // Armazenamento em memória é por instância: em serverless o teto efetivo
+    // vira (instâncias × max). Aceitável aqui — isto é válvula de segurança,
+    // não fronteira de segurança — e evita 2 idas ao Neon por request de auth.
+    storage: "memory",
+    window: 60,
+    max: 2000,
+    customRules: {
+      // Pico de chegada: a sala toda logando nos mesmos poucos minutos.
+      "/sign-in/social": { window: 60, max: 900 },
+      "/callback/*": { window: 60, max: 900 },
+      "/get-session": { window: 60, max: 2000 },
+      // Nada legítimo martela estes caminhos.
+      "/sign-out": { window: 60, max: 120 },
+      "/delete-user": { window: 60, max: 20 },
+    },
+  },
   user: {
     additionalFields: {
       role: {

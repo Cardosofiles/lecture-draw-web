@@ -16,13 +16,40 @@ pnpm db:push      # Apply schema to the database
 pnpm db:seed      # Seed initial data
 pnpm db:studio    # Open Prisma Studio
 
+pnpm lint             # ESLint
+pnpm typecheck        # tsc --noEmit
+
 pnpm test             # Vitest, full suite
 pnpm test:unit        # Unit tests only (no database)
-pnpm test:integration # Integration tests — hit the real Neon database
+pnpm test:integration # Integration tests — need DATABASE_URL
+
+pnpm verify:rate-limit # Rate limit e2e — needs a server on BASE_URL
 ```
 
+### Local database
+
+`docker compose up -d` starts Postgres 17 on host port **5433** (5432 is often
+taken by another project). Point `DATABASE_URL` at
+`postgresql://lecture:lecture@localhost:5433/lecture_draw`, then
+`pnpm db:push && pnpm db:seed`. Dumps dropped in `docker/initdb/` are restored
+on the first boot of an empty volume.
+
+### Tests
+
 Tests live in `tests/` (`unit/`, `integration/`, `helpers/`). The integration
-suite talks to the database in `DATABASE_URL`, so it asserts on real seeded data.
+suite talks to the database in `DATABASE_URL`. Assertions that only make sense
+against the real event data — one admin exists, 5+ people have signed in — are
+gated behind `READINESS=1` so they don't fail against a freshly seeded CI
+database.
+
+### CI
+
+`.github/workflows/ci.yml` — `quality` (lint, typecheck, Prisma Client drift),
+`seed` (push + seed twice + row counts), `test`, `rate-limit` (real build,
+`next start`, `scripts/verify-rate-limit.ts`) and `audit`. Each job spins up its
+own Postgres service container, so no secret is needed and the real database is
+never touched. `neon-readiness` is `workflow_dispatch`-only and uses
+`secrets.DATABASE_URL` to answer "is the draw ready?" before the lecture.
 
 ## Architecture
 

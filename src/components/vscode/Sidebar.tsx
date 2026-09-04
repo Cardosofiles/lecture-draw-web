@@ -67,11 +67,11 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
             alignItems: "center",
             gap: "4px",
             width: "100%",
-            padding: "4px 8px",
+            padding: "0 8px", minHeight: "40px",
             background: "none",
             border: "none",
             color: "var(--vscode-text-muted)",
-            fontSize: "11px",
+            fontSize: "12px",
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.08em",
@@ -93,7 +93,7 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
             <div
               style={{
                 padding: "2px 8px",
-                fontSize: "11px",
+                fontSize: "12px",
                 color: "var(--vscode-text-mute)",
               }}
             >
@@ -123,7 +123,7 @@ export function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
         style={{
           borderTop: "1px solid var(--vscode-border)",
           padding: "8px",
-          fontSize: "11px",
+          fontSize: "12px",
           color: "var(--vscode-text-mute)",
         }}
       >

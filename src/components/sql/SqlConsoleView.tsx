@@ -127,6 +127,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
     <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
       {/* Schema browser sidebar */}
       <div
+        className="sql-schema-sidebar"
         style={{
           width: "220px",
           minWidth: "220px",
@@ -138,7 +139,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
         <div
           style={{
             padding: "8px 12px",
-            fontSize: "11px",
+            fontSize: "12px",
             fontWeight: 700,
             color: "var(--vscode-text-muted)",
             textTransform: "uppercase",
@@ -158,12 +159,13 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
               onClick={() =>
                 setOpenTables((p) => ({ ...p, [table]: !p[table] }))
               }
+              className="sql-table-row"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "4px",
                 width: "100%",
-                padding: "5px 10px",
+                padding: "0 10px",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
@@ -187,7 +189,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
                     key={c.column}
                     style={{
                       padding: "3px 10px 3px 28px",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       fontFamily: "var(--font-mono)",
                       color: "var(--vscode-text-muted)",
                       display: "flex",
@@ -244,6 +246,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
           >
             <span style={{ color: "var(--vscode-red)" }}>SQL</span> Console
             <span
+              className="sql-subtitle"
               style={{
                 fontSize: "12px",
                 fontFamily: "var(--font-mono)",
@@ -286,7 +289,8 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                padding: "9px 20px",
+                padding: "0 20px",
+                minHeight: "44px",
                 borderRadius: "6px",
                 background: isPending
                   ? "rgba(0,229,255,0.1)"
@@ -481,7 +485,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
           >
             <div
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: 700,
                 color: "var(--vscode-text-muted)",
                 textTransform: "uppercase",
@@ -504,7 +508,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
                   alignItems: "center",
                   gap: "8px",
                   width: "100%",
-                  padding: "4px 8px",
+                  padding: "0 8px", minHeight: "44px",
                   marginBottom: "2px",
                   background: "none",
                   border: "none",
@@ -535,9 +539,12 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
                 <span
                   style={{
                     fontFamily: "var(--font-mono)",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     color: "var(--vscode-text-muted)",
                     flex: 1,
+                    // Without this the flex item refuses to shrink below the
+                    // query's intrinsic width, so the ellipsis never kicks in.
+                    minWidth: 0,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -547,7 +554,7 @@ export function SqlConsoleView({ initialSchema, initialHistory }: Props) {
                 </span>
                 <span
                   style={{
-                    fontSize: "10px",
+                    fontSize: "12px",
                     color: "var(--vscode-text-mute)",
                     flexShrink: 0,
                     fontFamily: "var(--font-mono)",

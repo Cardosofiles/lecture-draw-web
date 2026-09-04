@@ -5,6 +5,15 @@ import { PrismaClient } from "@/generated/prisma/client";
 const hasDb = Boolean(process.env.DATABASE_URL);
 const d = hasDb ? describe : describe.skip;
 
+/**
+ * Portões de prontidão do evento: dependem de gente que já logou e do admin
+ * promovido pelo seed. Não dizem nada sobre o banco efêmero que o CI sobe do
+ * zero, então só rodam com READINESS=1 — o job "Prontidão do Neon", apontado
+ * para o banco de verdade.
+ */
+const readiness =
+  hasDb && process.env.READINESS === "1" ? describe : describe.skip;
+
 const prisma = hasDb
   ? new PrismaClient({
       adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
@@ -107,9 +116,24 @@ d("seed data required for the raffle to run", () => {
     expect(prizes.map((p) => p.prizeNumber)).toEqual([1, 2, 3, 4, 5]);
   });
 
+});
+
+readiness("prontidão do evento (só contra o banco real)", () => {
   it("has exactly one admin", async () => {
     const admins = await prisma.user.count({ where: { role: "admin" } });
     expect(admins).toBe(1);
+  });
+
+  // Fica vermelho até 5 pessoas terem logado. Rode antes da palestra para
+  // saber que o sorteio vai passar.
+  it("EVENT READINESS: has at least 5 eligible participants for a draw", async () => {
+    const eligible = await prisma.raffleEntry.count({
+      where: { user: { role: { not: "admin" } } },
+    });
+    expect(
+      eligible,
+      "drawRaffle() throws below 5 eligible participants",
+    ).toBeGreaterThanOrEqual(5);
   });
 });
 
@@ -119,18 +143,6 @@ d("raffle data invariants", () => {
       where: { user: { role: "admin" } },
     });
     expect(enrolledAdmins).toBe(0);
-  });
-
-  // Event-readiness gate, not a code defect: it stays red until 5 people have
-  // signed in. Run it before the lecture to know the draw will go through.
-  it("EVENT READINESS: has at least 5 eligible participants for a draw", async () => {
-    const eligible = await prisma.raffleEntry.count({
-      where: { user: { role: { not: "admin" } } },
-    });
-    expect(
-      eligible,
-      "drawRaffle() throws below 5 eligible participants",
-    ).toBeGreaterThanOrEqual(5);
   });
 
   it("no prize is won by the same user twice", async () => {

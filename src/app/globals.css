@@ -184,6 +184,29 @@ body {
   padding: 0 12px;
   gap: 16px;
   flex-shrink: 0;
+  /* The bar sits inside `.vscode-editor`, which is `overflow: hidden`. Without
+     these two, its nowrap children reach ~463px of intrinsic width and anything
+     past the viewport is clipped with no way for the user to scroll to it. */
+  min-width: 0;
+  overflow: hidden;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: #000;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.status-item--strong {
+  font-weight: 600;
+}
+
+.status-item--mono {
+  font-family: var(--font-mono);
 }
 
 /* ─── Tab Bar ───────────────────────────────────────────────────── */
@@ -268,7 +291,7 @@ body {
 /* ─── Sidebar Tree ──────────────────────────────────────────────── */
 .sidebar-header {
   padding: 8px 12px 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -280,7 +303,10 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
+  /* The sidebar appears from 769px up, which includes touch tablets in
+     landscape and the iPad Pro in portrait — keep the row finger-sized. */
+  padding: 10px 12px;
+  min-height: 40px;
   cursor: pointer;
   font-size: 13px;
   color: var(--vscode-text-muted);
@@ -404,11 +430,14 @@ body {
 }
 
 .btn-danger {
+  display: inline-flex;
+  align-items: center;
   background: transparent;
   color: var(--vscode-red);
   border: 1px solid rgba(255, 77, 109, 0.4);
   border-radius: 6px;
-  padding: 8px 20px;
+  padding: 0 20px;
+  min-height: 44px;
   cursor: pointer;
   transition: background 0.15s;
   font-family: var(--font-body);
@@ -423,9 +452,9 @@ body {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
@@ -510,9 +539,15 @@ body {
 /* ─── Lottery Ring Animation ────────────────────────────────────── */
 .lottery-ring {
   position: relative;
-  width: 280px;
-  height: 280px;
+  /* `spin-slow` rotates the ring, and a rotated square's axis-aligned bounding
+     box grows by up to √2 — enough to spill past a 320px screen even though
+     the visible circle fits. The circle is inscribed in the square, so
+     clipping the corners costs nothing and stops the overflow. */
+  width: min(280px, 72vw);
+  aspect-ratio: 1;
+  height: auto;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .lottery-ring-border {
@@ -546,7 +581,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 11px;
+  font-size: 12px;
   padding: 8px 12px;
   text-align: left;
   border-bottom: 1px solid var(--vscode-border);
@@ -568,12 +603,34 @@ body {
   border: 1px solid var(--vscode-border);
   border-radius: 4px;
   color: var(--vscode-text);
-  font-size: 13px;
+  /* 16px is the floor that stops Safari iOS from zooming the page on focus. */
+  font-size: 16px;
   font-family: var(--font-body);
-  padding: 6px 10px;
+  padding: 10px 12px;
+  min-height: 44px;
   outline: none;
   width: 100%;
   transition: border-color 0.15s;
+}
+
+/* The schema tree is only on screen from 769px up, so it is sized for touch
+   through the tablet range and goes compact on true desktop. */
+.sql-table-row {
+  min-height: 44px;
+}
+
+/* Tablets keep the finger-sized controls; only true desktop widths get the
+   compact ones. */
+@media (min-width: 960px) {
+  .vscode-input {
+    font-size: 13px;
+    padding: 6px 10px;
+    min-height: 34px;
+  }
+
+  .sql-table-row {
+    min-height: 30px;
+  }
 }
 
 .vscode-input:focus {
@@ -584,8 +641,124 @@ body {
   color: var(--vscode-text-mute);
 }
 
+/* ─── Stat card ─────────────────────────────────────────────────── */
+.stat-card {
+  padding: clamp(14px, 4vw, 20px);
+}
+
+/* ─── Countdown ─────────────────────────────────────────────────── */
+/* Fixed 60px units with a 24px gap needed 542px, so the hero element scrolled
+   sideways on every phone. Everything here scales with the viewport instead. */
+.countdown-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 3vw, 24px);
+}
+
+.countdown-unit {
+  text-align: center;
+  min-width: clamp(44px, 13vw, 60px);
+}
+
+.countdown-value {
+  font-size: clamp(26px, 8vw, 32px);
+}
+
+.countdown-label {
+  font-size: 12px;
+}
+
+.countdown-sep {
+  font-size: clamp(20px, 6vw, 28px);
+}
+
+/* ─── Participants table ────────────────────────────────────────── */
+.participants-head,
+.participant-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.participants-head {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--vscode-border);
+  background: var(--vscode-activity-bar);
+}
+
+.participant-row {
+  padding: 10px 16px;
+}
+
+/* The tab bar duplicates whichever navigation is on screen — the bottom nav
+   below 769px, the sidebar above it — and it only stops needing a scrollbar at
+   ~960px (5 tabs x 120px plus the 288px activity bar + sidebar). While it
+   scrolls, the scrollbar eats into its 36px and leaves 29px tab targets, so
+   keep it off until it genuinely fits. */
+@media (max-width: 959px) {
+  .vscode-tab-bar {
+    display: none;
+  }
+}
+
 /* ─── Mobile ────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  /* Four fixed columns in ~360px squeezed the name to "joa…" and left the
+     e-mail column with no width at all. Below the breakpoint each row becomes
+     a card: identity on top, metadata wrapping underneath. */
+  .participant-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px 12px;
+    padding: 12px 14px;
+  }
+
+  .participant-cell--name {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .participant-cell--status {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .participant-cell--email {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .participant-cell--date {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  /* Pages set `padding: 32px` inline, which leaves 256px of usable width on a
+     320px screen and tucks the last row under the fixed bottom nav. Inline
+     styles can only be beaten with !important. */
+  .grid-bg > div {
+    padding: 16px 16px calc(72px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .md-only {
+    display: none !important;
+  }
+
+  /* The 220px schema browser left ~100px for the editor on a 320px screen,
+     which squeezed the query history down to 13px of its 640px. The schema is
+     a reference aid; the editor is the point. */
+  .sql-schema-sidebar {
+    display: none !important;
+  }
+
+  /* Inline after the heading it ran off the right edge; give it its own line. */
+  .sql-subtitle {
+    display: block;
+    margin-left: 0 !important;
+    margin-top: 4px;
+  }
+
   body {
     overflow: auto;
   }
@@ -608,13 +781,36 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 56px;
+    /* 56px + the home-indicator inset, so the last row is not sat on by it. */
+    height: calc(56px + env(safe-area-inset-bottom));
+    padding: 0 8px env(safe-area-inset-bottom);
     background: var(--vscode-activity-bar);
     border-top: 1px solid var(--vscode-border);
     z-index: 50;
     align-items: center;
     justify-content: space-around;
-    padding: 0 8px;
+  }
+
+  .mobile-nav-item {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  /* The fixed bottom nav covers the status bar completely, so on mobile it was
+     24px of shell height painting nothing. It is desktop chrome, like the tab
+     bar above. */
+  .vscode-status-bar {
+    display: none;
+  }
+}
+
+/* Between 769px and the sidebar's full width the editor gets narrow enough for
+   the bar's nowrap items to crowd; drop the decorative ones first. */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .status-item--encoding,
+  .status-item--language {
+    display: none;
   }
 }
 

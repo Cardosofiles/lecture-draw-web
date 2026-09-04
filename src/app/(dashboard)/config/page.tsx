@@ -84,7 +84,7 @@ export default function ConfigPage() {
           <User size={14} color="var(--vscode-accent)" />
           <span
             style={{
-              fontSize: "11px",
+              fontSize: "12px",
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",
@@ -180,7 +180,7 @@ export default function ConfigPage() {
             alignItems: "center",
             gap: "8px",
             width: "100%",
-            padding: "9px 12px",
+            padding: "0 12px", minHeight: "44px",
             borderRadius: "6px",
             background: "transparent",
             border: "1px solid var(--vscode-border)",
@@ -234,7 +234,7 @@ export default function ConfigPage() {
           <AlertTriangle size={14} color="var(--vscode-red)" />
           <span
             style={{
-              fontSize: "11px",
+              fontSize: "12px",
               fontWeight: 700,
               textTransform: "uppercase",
               letterSpacing: "0.08em",

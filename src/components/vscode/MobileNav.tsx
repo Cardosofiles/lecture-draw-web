@@ -24,18 +24,20 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={isActive ? "page" : undefined}
+            className="mobile-nav-item"
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
               gap: "2px",
-              padding: "6px 12px",
+              padding: "6px 10px",
               borderRadius: "6px",
               color: isActive
                 ? "var(--vscode-accent)"
                 : "var(--vscode-text-muted)",
               textDecoration: "none",
-              fontSize: "10px",
               transition: "color 0.15s",
               background: isActive ? "var(--vscode-accent-ghost)" : "none",
             }}

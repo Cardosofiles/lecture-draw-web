@@ -2,11 +2,13 @@
   "name": "lecture-draw-web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
@@ -14,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
-    "test:integration": "vitest run tests/integration"
+    "test:integration": "vitest run tests/integration",
+    "verify:rate-limit": "tsx scripts/verify-rate-limit.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

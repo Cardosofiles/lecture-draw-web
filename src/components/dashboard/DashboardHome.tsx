@@ -105,11 +105,11 @@ function CountdownUnit({
   label: string;
 }) {
   return (
-    <div style={{ textAlign: "center", minWidth: "60px" }}>
+    <div className="countdown-unit">
       <div
+        className="countdown-value"
         style={{
           fontFamily: "var(--font-mono)",
-          fontSize: "32px",
           fontWeight: 700,
           color: "var(--vscode-accent)",
           lineHeight: 1,
@@ -119,8 +119,8 @@ function CountdownUnit({
         {value === null ? "--" : String(value).padStart(2, "0")}
       </div>
       <div
+        className="countdown-label"
         style={{
-          fontSize: "10px",
           color: "var(--vscode-text-mute)",
           marginTop: "4px",
           textTransform: "uppercase",
@@ -135,9 +135,9 @@ function CountdownUnit({
 function CountdownSeparator() {
   return (
     <span
+      className="countdown-sep"
       style={{
         color: "var(--vscode-accent-dim)",
-        fontSize: "28px",
         fontFamily: "var(--font-mono)",
         lineHeight: 1,
       }}
@@ -223,7 +223,8 @@ export function DashboardHome({
         transition={{ duration: 0.4, delay: 0.1 }}
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          // Three fixed columns pushed the third card off a 320px screen.
+          gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
           gap: "16px",
           marginBottom: "32px",
         }}
@@ -231,11 +232,11 @@ export function DashboardHome({
         {stats.map((stat) => (
           <div
             key={stat.label}
+            className="stat-card"
             style={{
               background: "linear-gradient(135deg, #070e1d 0%, #0a1528 100%)",
               border: "1px solid var(--vscode-border)",
               borderRadius: "12px",
-              padding: "20px",
               display: "flex",
               alignItems: "center",
               gap: "16px",
@@ -332,7 +333,7 @@ export function DashboardHome({
               <Cpu size={12} style={{ color: "var(--vscode-accent)" }} />
               <span
                 style={{
-                  fontSize: "11px",
+                  fontSize: "12px",
                   color: "var(--vscode-accent)",
                   fontWeight: 600,
                 }}
@@ -476,13 +477,7 @@ export function DashboardHome({
                     </span>
                   </div>
                 ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "24px",
-                      alignItems: "center",
-                    }}
-                  >
+                  <div className="countdown-row">
                     <CountdownUnit
                       value={countdown?.days ?? null}
                       label="dias"

@@ -27,7 +27,8 @@ export function Terminal() {
           display: "flex",
           alignItems: "center",
           gap: "6px",
-          padding: "4px 12px",
+          padding: "0 12px",
+          minHeight: "44px",
           background: "none",
           border: "none",
           borderTop: "1px solid var(--vscode-border)",
@@ -73,7 +74,7 @@ export function Terminal() {
         <TerminalIcon size={12} style={{ color: "var(--vscode-text-muted)" }} />
         <span
           style={{
-            fontSize: "11px",
+            fontSize: "12px",
             color: "var(--vscode-text-muted)",
             textTransform: "uppercase",
             letterSpacing: "0.08em",

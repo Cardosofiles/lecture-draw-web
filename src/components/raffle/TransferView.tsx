@@ -429,7 +429,7 @@ export function TransferView({ userPrize, participants, currentUser }: Props) {
                   </div>
                   <div
                     style={{
-                      fontSize: "11px",
+                      fontSize: "12px",
                       color: "var(--vscode-text-mute)",
                       fontFamily: "var(--font-mono)",
                     }}

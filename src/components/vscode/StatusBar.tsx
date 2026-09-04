@@ -22,73 +22,46 @@ export function StatusBar({ participantCount = 0 }: StatusBarProps) {
     <div className="vscode-status-bar">
       {/* Left section */}
       <div
-        style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          flex: 1,
+          minWidth: 0,
+        }}
       >
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            color: "#000",
-            fontSize: "11px",
-            fontWeight: 600,
-          }}
-        >
+        <span className="status-item status-item--strong">
           <Wifi size={12} />
           Neon DB
         </span>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            color: "#000",
-            fontSize: "11px",
-          }}
-        >
+        <span className="status-item status-item--branch">
           <GitBranch size={12} />
           main
         </span>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            color: "#000",
-            fontSize: "11px",
-          }}
-        >
+        <span className="status-item status-item--event">
           <Zap size={12} />
           AI Lecture 2026
         </span>
       </div>
 
       {/* Right section */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            color: "#000",
-            fontSize: "11px",
-            fontWeight: 600,
-          }}
-        >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "16px",
+          minWidth: 0,
+        }}
+      >
+        <span className="status-item status-item--strong">
           <Users size={12} />
           {participantCount} participantes
         </span>
-        <span
-          style={{
-            color: "#000",
-            fontSize: "11px",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
+        <span className="status-item status-item--mono status-item--time">
           {time}
         </span>
-        <span style={{ color: "#000", fontSize: "11px" }}>UTF-8</span>
-        <span style={{ color: "#000", fontSize: "11px" }}>TypeScript</span>
+        <span className="status-item status-item--encoding">UTF-8</span>
+        <span className="status-item status-item--language">TypeScript</span>
       </div>
     </div>
   );

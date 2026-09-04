@@ -119,7 +119,7 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
           background: "var(--vscode-activity-bar)",
           borderRadius: "6px 6px 0 0",
           borderBottom: "1px solid var(--vscode-border)",
-          fontSize: "11px",
+          fontSize: "12px",
           color: "var(--vscode-text-muted)",
           fontWeight: 700,
           textTransform: "uppercase",
@@ -141,21 +141,12 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
         }}
       >
         {/* Table header */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr auto auto",
-            padding: "8px 16px",
-            borderBottom: "1px solid var(--vscode-border)",
-            background: "var(--vscode-activity-bar)",
-          }}
-          className="md-only"
-        >
+        <div className="participants-head md-only">
           {["Participante", "Email", "Inscrito em", "Status"].map((h) => (
             <div
               key={h}
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 color: "var(--vscode-text-muted)",
                 fontWeight: 700,
                 textTransform: "uppercase",
@@ -190,19 +181,16 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.3 }}
+                className="participant-row"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto auto",
-                  alignItems: "center",
-                  padding: "10px 16px",
                   borderBottom: "1px solid rgba(0,200,255,0.06)",
-                  gap: "16px",
                   background: isMe ? "rgba(0,229,255,0.03)" : "transparent",
                   transition: "background 0.12s",
                 }}
               >
                 {/* Name & avatar */}
                 <div
+                  className="participant-cell participant-cell--name"
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -262,7 +250,7 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
                         <span
                           style={{
                             marginLeft: "6px",
-                            fontSize: "11px",
+                            fontSize: "12px",
                             color: "var(--vscode-accent)",
                           }}
                         >
@@ -273,7 +261,7 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
                     {hasPrize && (
                       <div
                         style={{
-                          fontSize: "10px",
+                          fontSize: "12px",
                           color: "var(--vscode-magenta)",
                           display: "flex",
                           alignItems: "center",
@@ -289,6 +277,7 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
 
                 {/* Email */}
                 <div
+                  className="participant-cell participant-cell--email"
                   style={{
                     fontSize: "12px",
                     color: "var(--vscode-text-muted)",
@@ -303,11 +292,12 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
 
                 {/* Join date */}
                 <div
+                  className="participant-cell participant-cell--date"
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     color: "var(--vscode-text-mute)",
                     whiteSpace: "nowrap",
                   }}
@@ -317,7 +307,7 @@ export function ParticipantsView({ participants, currentUserId }: Props) {
                 </div>
 
                 {/* Status badge */}
-                <div>
+                <div className="participant-cell participant-cell--status">
                   {hasPrize ? (
                     <span className="badge badge-magenta">🏆 Premiado</span>
                   ) : (

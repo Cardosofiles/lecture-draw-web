@@ -1,4 +1,4 @@
-# 🖥️ AI Lecture — Sorteio de PCs
+# 🖥️ AI Lecture — Sorteio de Configuração para Dev - Alunos da Unitri
 
 Sistema de sorteio para palestra sobre Inteligência Artificial. O host sorteia 5 configurações completas de PC entre todos os participantes autenticados via Google ou GitHub.
 

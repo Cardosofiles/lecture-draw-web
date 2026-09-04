@@ -103,7 +103,7 @@ export function WinnerCard({ prize, currentUserId }: Props) {
             borderRadius: "8px",
             background: "rgba(44,242,163,0.1)",
             border: "1px solid rgba(44,242,163,0.35)",
-            fontSize: "11px",
+            fontSize: "12px",
             fontWeight: 700,
             color: "var(--vscode-green)",
             textAlign: "center",
@@ -251,7 +251,7 @@ export function WinnerCard({ prize, currentUserId }: Props) {
             borderRadius: "999px",
             background: "rgba(255,158,44,0.12)",
             border: "1px solid rgba(255,158,44,0.3)",
-            fontSize: "10px",
+            fontSize: "12px",
             color: "var(--vscode-orange)",
             fontWeight: 600,
           }}
