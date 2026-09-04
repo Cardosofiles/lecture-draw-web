@@ -1,0 +1,4 @@
+# Roda ESLint --fix e Prettier apenas nos arquivos staged.
+# `typecheck` NÃO entra aqui: o tsc é project-wide e checar arquivo isolado
+# produz falso positivo e falso negativo. Ele vive no pre-push.
+pnpm exec lint-staged

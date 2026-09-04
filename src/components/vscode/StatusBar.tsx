@@ -1,31 +1,30 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { GitBranch, Zap, Users, Wifi } from "lucide-react";
+import { useEffect, useState } from 'react'
+import { GitBranch, Zap, Users, Wifi } from 'lucide-react'
 
 interface StatusBarProps {
-  participantCount?: number;
+  participantCount?: number
 }
 
 export function StatusBar({ participantCount = 0 }: StatusBarProps) {
-  const [time, setTime] = useState<string>("");
+  const [time, setTime] = useState<string>('')
 
   useEffect(() => {
-    const update = () =>
-      setTime(new Date().toLocaleTimeString("pt-BR", { hour12: false }));
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
-  }, []);
+    const update = () => setTime(new Date().toLocaleTimeString('pt-BR', { hour12: false }))
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <div className="vscode-status-bar">
       {/* Left section */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
           flex: 1,
           minWidth: 0,
         }}
@@ -47,9 +46,9 @@ export function StatusBar({ participantCount = 0 }: StatusBarProps) {
       {/* Right section */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
           minWidth: 0,
         }}
       >
@@ -57,12 +56,10 @@ export function StatusBar({ participantCount = 0 }: StatusBarProps) {
           <Users size={12} />
           {participantCount} participantes
         </span>
-        <span className="status-item status-item--mono status-item--time">
-          {time}
-        </span>
+        <span className="status-item status-item--mono status-item--time">{time}</span>
         <span className="status-item status-item--encoding">UTF-8</span>
         <span className="status-item status-item--language">TypeScript</span>
       </div>
     </div>
-  );
+  )
 }

@@ -1,0 +1,24 @@
+# Machine-generated — reformatting these produces churn with no reviewer value,
+# and a lockfile must stay byte-identical to what the package manager writes.
+pnpm-lock.yaml
+
+# Build artifacts and generated types
+.next/
+out/
+build/
+coverage/
+next-env.d.ts
+*.tsbuildinfo
+
+# Client tipado gerado pelo openapi-typescript (regerar com `pnpm api:types`).
+src/shared/api/schema.d.ts
+
+# Client gerado pelo Prisma (regerar com `pnpm db:generate`).
+src/generated/prisma/
+
+# Escrito pelo Claude Code e ignorado pelo git — nunca chega na CI, então checá-lo
+# só faz `pnpm format:check` falhar na máquina de quem desenvolve e passar no CI.
+# O resto de .claude/ (rules, memory) é versionado e continua sendo formatado.
+.claude/settings.local.json
+
+node_modules/

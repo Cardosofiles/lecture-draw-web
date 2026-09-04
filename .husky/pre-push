@@ -1,0 +1,2 @@
+# O tsc é project-wide: roda inteiro, uma vez, antes do push.
+pnpm typecheck
