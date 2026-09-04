@@ -1,61 +1,61 @@
-"use client";
+'use client'
 
-import { useState, useTransition } from "react";
-import { authClient, useSession } from "@/lib/auth-client";
-import { deleteAccount } from "@/actions/users";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Trash2, User, AlertTriangle, X, LogOut, Loader2 } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useState, useTransition } from 'react'
+import { authClient, useSession } from '@/lib/auth-client'
+import { deleteAccount } from '@/actions/users'
+import * as Dialog from '@radix-ui/react-dialog'
+import { Trash2, User, AlertTriangle, X, LogOut, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export default function ConfigPage() {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [open, setOpen] = useState(false);
-  const [confirmText, setConfirmText] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const router = useRouter()
+  const { data: session } = useSession()
+  const [open, setOpen] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
-  const user = session?.user;
-  const isConfirmed = confirmText === "EXCLUIR";
+  const user = session?.user
+  const isConfirmed = confirmText === 'EXCLUIR'
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteAccount();
-    });
+      await deleteAccount()
+    })
   }
 
   async function handleSignOut() {
-    setIsSigningOut(true);
-    await authClient.signOut();
-    router.push("/login");
+    setIsSigningOut(true)
+    await authClient.signOut()
+    router.push('/login')
   }
 
   function handleOpenChange(v: boolean) {
-    setOpen(v);
-    if (!v) setConfirmText("");
+    setOpen(v)
+    if (!v) setConfirmText('')
   }
 
   return (
-    <div style={{ padding: "32px", maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ padding: '32px', maxWidth: '640px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: '32px' }}>
         <h1
           style={{
-            fontSize: "20px",
+            fontSize: '20px',
             fontWeight: 700,
-            color: "var(--vscode-text)",
-            fontFamily: "var(--font-display)",
+            color: 'var(--vscode-text)',
+            fontFamily: 'var(--font-display)',
             margin: 0,
-            marginBottom: "4px",
+            marginBottom: '4px',
           }}
         >
           Configurações
         </h1>
         <p
           style={{
-            color: "var(--vscode-text-muted)",
-            fontSize: "13px",
+            color: 'var(--vscode-text-muted)',
+            fontSize: '13px',
             margin: 0,
           }}
         >
@@ -66,29 +66,29 @@ export default function ConfigPage() {
       {/* User Info */}
       <section
         style={{
-          background: "linear-gradient(135deg, #070e1d 0%, #0a1528 100%)",
-          border: "1px solid var(--vscode-border)",
-          borderRadius: "10px",
-          padding: "20px",
-          marginBottom: "24px",
+          background: 'linear-gradient(135deg, #070e1d 0%, #0a1528 100%)',
+          border: '1px solid var(--vscode-border)',
+          borderRadius: '10px',
+          padding: '20px',
+          marginBottom: '24px',
         }}
       >
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            marginBottom: "16px",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px',
           }}
         >
           <User size={14} color="var(--vscode-accent)" />
           <span
             style={{
-              fontSize: "12px",
+              fontSize: '12px',
               fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "var(--vscode-text-muted)",
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--vscode-text-muted)',
             }}
           >
             Perfil
@@ -96,7 +96,7 @@ export default function ConfigPage() {
         </div>
 
         {user ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {user.image && (
               <Image
                 src={user.image}
@@ -104,10 +104,10 @@ export default function ConfigPage() {
                 width={48}
                 height={48}
                 style={{
-                  borderRadius: "50%",
-                  border: "2px solid var(--vscode-border)",
+                  borderRadius: '50%',
+                  border: '2px solid var(--vscode-border)',
                   flexShrink: 0,
-                  objectFit: "cover",
+                  objectFit: 'cover',
                 }}
               />
             )}
@@ -116,11 +116,11 @@ export default function ConfigPage() {
                 style={{
                   margin: 0,
                   fontWeight: 600,
-                  color: "var(--vscode-text)",
-                  fontSize: "15px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  color: 'var(--vscode-text)',
+                  fontSize: '15px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {user.name}
@@ -128,33 +128,29 @@ export default function ConfigPage() {
               <p
                 style={{
                   margin: 0,
-                  color: "var(--vscode-text-muted)",
-                  fontSize: "13px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  color: 'var(--vscode-text-muted)',
+                  fontSize: '13px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {user.email}
               </p>
             </div>
-            <div style={{ marginLeft: "auto", flexShrink: 0 }}>
+            <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
               <span
-                className={
-                  user.role === "admin"
-                    ? "badge badge-magenta"
-                    : "badge badge-accent"
-                }
+                className={user.role === 'admin' ? 'badge badge-magenta' : 'badge badge-accent'}
               >
-                {user.role === "admin" ? "Admin" : "Participante"}
+                {user.role === 'admin' ? 'Admin' : 'Participante'}
               </span>
             </div>
           </div>
         ) : (
           <p
             style={{
-              color: "var(--vscode-text-muted)",
-              fontSize: "13px",
+              color: 'var(--vscode-text-muted)',
+              fontSize: '13px',
               margin: 0,
             }}
           >
@@ -165,9 +161,9 @@ export default function ConfigPage() {
         {/* Separator */}
         <div
           style={{
-            height: "1px",
-            background: "var(--vscode-border)",
-            margin: "16px 0",
+            height: '1px',
+            background: 'var(--vscode-border)',
+            margin: '16px 0',
           }}
         />
 
@@ -176,69 +172,63 @@ export default function ConfigPage() {
           onClick={handleSignOut}
           disabled={isSigningOut}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            width: "100%",
-            padding: "0 12px", minHeight: "44px",
-            borderRadius: "6px",
-            background: "transparent",
-            border: "1px solid var(--vscode-border)",
-            color: isSigningOut
-              ? "var(--vscode-text-mute)"
-              : "var(--vscode-text-muted)",
-            cursor: isSigningOut ? "not-allowed" : "pointer",
-            fontSize: "13px",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            width: '100%',
+            padding: '0 12px',
+            minHeight: '44px',
+            borderRadius: '6px',
+            background: 'transparent',
+            border: '1px solid var(--vscode-border)',
+            color: isSigningOut ? 'var(--vscode-text-mute)' : 'var(--vscode-text-muted)',
+            cursor: isSigningOut ? 'not-allowed' : 'pointer',
+            fontSize: '13px',
             fontWeight: 500,
-            transition: "background 0.15s, border-color 0.15s",
+            transition: 'background 0.15s, border-color 0.15s',
           }}
           onMouseEnter={(e) => {
             if (!isSigningOut)
-              (e.currentTarget as HTMLButtonElement).style.background =
-                "rgba(255,255,255,0.04)";
+              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background =
-              "transparent";
+            ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
           }}
         >
           {isSigningOut ? (
-            <Loader2
-              size={14}
-              style={{ animation: "spin 1s linear infinite", flexShrink: 0 }}
-            />
+            <Loader2 size={14} style={{ animation: 'spin 1s linear infinite', flexShrink: 0 }} />
           ) : (
             <LogOut size={14} style={{ flexShrink: 0 }} />
           )}
-          {isSigningOut ? "Saindo..." : "Sair da conta"}
+          {isSigningOut ? 'Saindo...' : 'Sair da conta'}
         </button>
       </section>
 
       {/* Danger Zone */}
       <section
         style={{
-          background: "rgba(255, 77, 109, 0.04)",
-          border: "1px solid rgba(255, 77, 109, 0.25)",
-          borderRadius: "10px",
-          padding: "20px",
+          background: 'rgba(255, 77, 109, 0.04)',
+          border: '1px solid rgba(255, 77, 109, 0.25)',
+          borderRadius: '10px',
+          padding: '20px',
         }}
       >
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            marginBottom: "16px",
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '16px',
           }}
         >
           <AlertTriangle size={14} color="var(--vscode-red)" />
           <span
             style={{
-              fontSize: "12px",
+              fontSize: '12px',
               fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "var(--vscode-red)",
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: 'var(--vscode-red)',
             }}
           >
             Zona de perigo
@@ -247,11 +237,11 @@ export default function ConfigPage() {
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "16px",
-            flexWrap: "wrap",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            flexWrap: 'wrap',
           }}
         >
           <div>
@@ -259,17 +249,17 @@ export default function ConfigPage() {
               style={{
                 margin: 0,
                 fontWeight: 600,
-                color: "var(--vscode-text)",
-                fontSize: "14px",
+                color: 'var(--vscode-text)',
+                fontSize: '14px',
               }}
             >
               Excluir conta
             </p>
             <p
               style={{
-                margin: "4px 0 0",
-                color: "var(--vscode-text-muted)",
-                fontSize: "13px",
+                margin: '4px 0 0',
+                color: 'var(--vscode-text-muted)',
+                fontSize: '13px',
               }}
             >
               Remove permanentemente sua conta e todos os dados associados.
@@ -279,11 +269,11 @@ export default function ConfigPage() {
             className="btn-danger"
             onClick={() => setOpen(true)}
             style={{
-              whiteSpace: "nowrap",
+              whiteSpace: 'nowrap',
               flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
             }}
           >
             <Trash2 size={14} />
@@ -297,50 +287,48 @@ export default function ConfigPage() {
         <Dialog.Portal>
           <Dialog.Overlay
             style={{
-              position: "fixed",
+              position: 'fixed',
               inset: 0,
-              background: "rgba(3, 6, 12, 0.85)",
-              backdropFilter: "blur(4px)",
+              background: 'rgba(3, 6, 12, 0.85)',
+              backdropFilter: 'blur(4px)',
               zIndex: 100,
             }}
           />
           <Dialog.Content
             style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "#070e1d",
-              border: "1px solid rgba(255, 77, 109, 0.35)",
-              borderRadius: "12px",
-              padding: "28px",
-              width: "min(440px, calc(100vw - 32px))",
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: '#070e1d',
+              border: '1px solid rgba(255, 77, 109, 0.35)',
+              borderRadius: '12px',
+              padding: '28px',
+              width: 'min(440px, calc(100vw - 32px))',
               zIndex: 101,
-              boxShadow: "0 0 40px rgba(255, 77, 109, 0.15)",
+              boxShadow: '0 0 40px rgba(255, 77, 109, 0.15)',
             }}
           >
             {/* Dialog Header */}
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                marginBottom: "16px",
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '16px',
               }}
             >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div
                   style={{
                     width: 36,
                     height: 36,
-                    borderRadius: "8px",
-                    background: "rgba(255, 77, 109, 0.12)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "1px solid rgba(255, 77, 109, 0.25)",
+                    borderRadius: '8px',
+                    background: 'rgba(255, 77, 109, 0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid rgba(255, 77, 109, 0.25)',
                     flexShrink: 0,
                   }}
                 >
@@ -349,9 +337,9 @@ export default function ConfigPage() {
                 <Dialog.Title
                   style={{
                     margin: 0,
-                    fontSize: "16px",
+                    fontSize: '16px',
                     fontWeight: 700,
-                    color: "var(--vscode-text)",
+                    color: 'var(--vscode-text)',
                   }}
                 >
                   Excluir conta
@@ -360,14 +348,14 @@ export default function ConfigPage() {
               <Dialog.Close asChild>
                 <button
                   style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--vscode-text-muted)",
-                    padding: "4px",
-                    borderRadius: "4px",
-                    display: "flex",
-                    alignItems: "center",
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--vscode-text-muted)',
+                    padding: '4px',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <X size={16} />
@@ -378,40 +366,38 @@ export default function ConfigPage() {
             {/* Description */}
             <Dialog.Description
               style={{
-                fontSize: "13px",
-                color: "var(--vscode-text-muted)",
-                marginBottom: "20px",
+                fontSize: '13px',
+                color: 'var(--vscode-text-muted)',
+                marginBottom: '20px',
                 lineHeight: 1.6,
               }}
             >
-              Esta ação é{" "}
-              <strong style={{ color: "var(--vscode-red)" }}>
-                permanente e irreversível
-              </strong>
-              . Sua conta, sessões, participação no sorteio e todos os dados
-              serão removidos completamente do banco de dados.
+              Esta ação é{' '}
+              <strong style={{ color: 'var(--vscode-red)' }}>permanente e irreversível</strong>. Sua
+              conta, sessões, participação no sorteio e todos os dados serão removidos completamente
+              do banco de dados.
             </Dialog.Description>
 
             {/* Confirmation input */}
-            <div style={{ marginBottom: "24px" }}>
+            <div style={{ marginBottom: '24px' }}>
               <label
                 style={{
-                  fontSize: "12px",
-                  color: "var(--vscode-text-muted)",
-                  display: "block",
-                  marginBottom: "8px",
+                  fontSize: '12px',
+                  color: 'var(--vscode-text-muted)',
+                  display: 'block',
+                  marginBottom: '8px',
                 }}
               >
-                Digite{" "}
+                Digite{' '}
                 <strong
                   style={{
-                    color: "var(--vscode-red)",
-                    fontFamily: "var(--font-mono)",
-                    letterSpacing: "0.05em",
+                    color: 'var(--vscode-red)',
+                    fontFamily: 'var(--font-mono)',
+                    letterSpacing: '0.05em',
                   }}
                 >
                   EXCLUIR
-                </strong>{" "}
+                </strong>{' '}
                 para confirmar
               </label>
               <input
@@ -422,10 +408,8 @@ export default function ConfigPage() {
                 autoComplete="off"
                 spellCheck={false}
                 style={{
-                  borderColor: isConfirmed
-                    ? "rgba(255, 77, 109, 0.5)"
-                    : undefined,
-                  fontFamily: "var(--font-mono)",
+                  borderColor: isConfirmed ? 'rgba(255, 77, 109, 0.5)' : undefined,
+                  fontFamily: 'var(--font-mono)',
                 }}
               />
             </div>
@@ -433,9 +417,9 @@ export default function ConfigPage() {
             {/* Actions */}
             <div
               style={{
-                display: "flex",
-                gap: "10px",
-                justifyContent: "flex-end",
+                display: 'flex',
+                gap: '10px',
+                justifyContent: 'flex-end',
               }}
             >
               <Dialog.Close asChild>
@@ -449,14 +433,14 @@ export default function ConfigPage() {
                 disabled={!isConfirmed || isPending}
                 style={{
                   opacity: !isConfirmed || isPending ? 0.4 : 1,
-                  cursor: !isConfirmed || isPending ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
+                  cursor: !isConfirmed || isPending ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
                 }}
               >
                 {isPending ? (
-                  "Excluindo..."
+                  'Excluindo...'
                 ) : (
                   <>
                     <Trash2 size={14} />
@@ -469,5 +453,5 @@ export default function ConfigPage() {
         </Dialog.Portal>
       </Dialog.Root>
     </div>
-  );
+  )
 }

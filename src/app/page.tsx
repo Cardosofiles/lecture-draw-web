@@ -1,6 +1,6 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
 
 /**
  * The root is a dispatcher. It must never send a signed-in visitor to /login:
@@ -8,6 +8,6 @@ import { auth } from "@/lib/auth";
  * ERR_TOO_MANY_REDIRECTS.
  */
 export default async function Home() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  redirect(session ? "/dashboard" : "/login");
+  const session = await auth.api.getSession({ headers: await headers() })
+  redirect(session ? '/dashboard' : '/login')
 }

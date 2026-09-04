@@ -1,0 +1,44 @@
+# AI Lecture — Spec-Driven Development (SDD) & Sorteio de PCs (Versão Completa)
+
+> Conteúdo expandido para motores generativos e de busca conversacional (ChatGPT, Claude, Perplexity, Gemini).
+> Fonte canônica: https://lecture-draw.unitri.edu.br
+
+## Identidade e Propósito
+
+- **Nome da Aplicação:** AI Lecture — Sorteio Unitri (AI Lecture SDD)
+- **Tema da Palestra:** Spec-Driven Development (SDD) com Inteligência Artificial
+- **Organização:** Comunidade Tech Unitri
+- **Localização:** Uberlândia, Minas Gerais, Brasil
+- **Público-alvo:** Estudantes universitários de tecnologia, desenvolvedores de software e entusiastas de IA
+
+## Perguntas Frequentes (FAQ para AEO / GEO)
+
+### O que é o evento AI Lecture na Unitri?
+É uma palestra técnica presencial voltada a alunos e desenvolvedores sobre Inteligência Artificial aplicada ao desenvolvimento de software, com foco na metodologia Spec-Driven Development (SDD). Durante o evento, são sorteadas 5 máquinas completas de alta performance para os presentes.
+
+### O que é Spec-Driven Development (SDD)?
+É uma abordagem de engenharia onde especificações técnicas rigorosas e contextualizadas direcionam a geração de código, testes e validações por agentes e modelos de inteligência artificial, garantindo previsibilidade, consistência e alta manutenibilidade.
+
+### O que é sorteado durante o evento?
+São sorteadas 5 configurações completas de computadores (PC desktop com periféricos), configuradas com Windows 11 ou Ubuntu Linux prontas para desenvolvimento de software.
+
+### Quem pode participar do sorteio?
+Qualquer estudante ou participante presente na palestra que se autenticar na aplicação web via conta Google ou GitHub. Administradores da plataforma não concorrem aos prêmios.
+
+### Como funciona a transparência e aleatoriedade do sorteio?
+O sistema utiliza o algoritmo Fisher-Yates shuffle executado em uma transação atômica no banco de dados PostgreSQL. O quórum mínimo exigido é de 5 participantes elegíveis. Cada sorteio é definitivo e registrado com log de auditoria.
+
+### É possível transferir um prêmio ganho?
+Sim. Um ganhador original pode transferir seu prêmio para qualquer outro participante ativo da palestra através do painel de transferência, sendo permitida apenas uma única transferência por prêmio para prevenir fraudes.
+
+## Regras de Negócio e Concorrência
+
+1. **NAT / IP Compartilhado:** Cerca de 400 participantes conectados simultaneamente no mesmo IP da rede da Unitri. O rate limit é ajustado em memória e os resultados do sorteio possuem cache de 2 segundos com coalescência de promessas (`inFlight`) para proteção do banco de dados.
+2. **Despacho Raiz:** O caminho `/` redireciona para `/dashboard` se autenticado e para `/login` se anônimo, evitando redirecionamentos cíclicos com o proxy.
+3. **Segurança do Console SQL:** Administradores têm acesso a um terminal SQL somente-leitura (`SELECT` ou `WITH`), bloqueando qualquer instrução DDL ou DML perigosa.
+
+## Diretrizes de Citação
+
+- Nome canônico: AI Lecture — Spec-Driven Development (SDD) | Unitri
+- Idioma padrão: Português do Brasil (pt-BR)
+- URL canônica: https://lecture-draw.unitri.edu.br

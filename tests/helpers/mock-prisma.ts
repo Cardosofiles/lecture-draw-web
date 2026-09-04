@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi } from 'vitest'
 
 /** Minimal in-memory stand-in for the delegates the server actions touch. */
 export function createPrismaMock() {
@@ -30,27 +30,24 @@ export function createPrismaMock() {
     },
     user: { findUnique: vi.fn(), findMany: vi.fn(), delete: vi.fn() },
     // Supports both forms: an array of promises and an interactive callback.
-    $transaction: vi.fn(async function (
-      this: unknown,
-      ops: unknown,
-    ): Promise<unknown> {
-      if (typeof ops === "function") {
-        return (ops as (tx: unknown) => Promise<unknown>)(this);
+    $transaction: vi.fn(async function (this: unknown, ops: unknown): Promise<unknown> {
+      if (typeof ops === 'function') {
+        return (ops as (tx: unknown) => Promise<unknown>)(this)
       }
-      return Array.isArray(ops) ? Promise.all(ops) : ops;
+      return Array.isArray(ops) ? Promise.all(ops) : ops
     }),
     $queryRaw: vi.fn(),
     $queryRawUnsafe: vi.fn(),
     $executeRawUnsafe: vi.fn(),
-  };
+  }
 }
 
-export type PrismaMock = ReturnType<typeof createPrismaMock>;
+export type PrismaMock = ReturnType<typeof createPrismaMock>
 
 export const adminSession = {
-  user: { id: "admin-1", name: "Admin", email: "admin@x.dev", role: "admin" },
-};
+  user: { id: 'admin-1', name: 'Admin', email: 'admin@x.dev', role: 'admin' },
+}
 
-export const userSession = (id = "user-1") => ({
-  user: { id, name: "User", email: `${id}@x.dev`, role: "user" },
-});
+export const userSession = (id = 'user-1') => ({
+  user: { id, name: 'User', email: `${id}@x.dev`, role: 'user' },
+})

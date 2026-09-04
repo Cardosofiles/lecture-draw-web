@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-type Prizes = Awaited<ReturnType<typeof queryPrizes>>;
+type Prizes = Awaited<ReturnType<typeof queryPrizes>>
 
 function queryPrizes() {
   return prisma.rafflePrize.findMany({
-    orderBy: { prizeNumber: "asc" },
+    orderBy: { prizeNumber: 'asc' },
     select: {
       id: true,
       prizeNumber: true,
@@ -16,7 +16,7 @@ function queryPrizes() {
       transferredToId: true,
       drawnAt: true,
     },
-  });
+  })
 }
 
 /**
@@ -25,30 +25,30 @@ function queryPrizes() {
  * `inFlight` matters as much as the TTL: without it a burst of 400 simultaneous
  * requests would all miss the cache and stampede the database at once.
  */
-const TTL_MS = 2_000;
-let cache: { data: Prizes; expiresAt: number } | null = null;
-let inFlight: Promise<Prizes> | null = null;
+const TTL_MS = 2_000
+let cache: { data: Prizes; expiresAt: number } | null = null
+let inFlight: Promise<Prizes> | null = null
 
 async function getPrizes(): Promise<Prizes> {
-  if (cache && cache.expiresAt > Date.now()) return cache.data;
-  if (inFlight) return inFlight;
+  if (cache && cache.expiresAt > Date.now()) return cache.data
+  if (inFlight) return inFlight
 
   inFlight = queryPrizes()
     .then((data) => {
-      cache = { data, expiresAt: Date.now() + TTL_MS };
-      return data;
+      cache = { data, expiresAt: Date.now() + TTL_MS }
+      return data
     })
     .finally(() => {
-      inFlight = null;
-    });
-  return inFlight;
+      inFlight = null
+    })
+  return inFlight
 }
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  return NextResponse.json(await getPrizes());
+  return NextResponse.json(await getPrizes())
 }
