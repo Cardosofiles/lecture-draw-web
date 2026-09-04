@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 import { signIn } from '@/modules/auth/data/auth-client'
@@ -12,6 +13,12 @@ import {
   type SocialProvider,
 } from '@/modules/auth/ui/components/auth-social-button'
 import { getFriendlyErrorMessage } from '@/modules/auth/ui/components/auth-messages'
+
+const footerLinkStyle: React.CSSProperties = {
+  color: 'var(--vscode-text-muted)',
+  textDecoration: 'underline',
+  textUnderlineOffset: '2px',
+}
 
 interface LoginViewProps {
   /**
@@ -242,9 +249,27 @@ export function LoginView({ socialError }: LoginViewProps) {
             lineHeight: 1.5,
           }}
         >
-          Ao entrar, você é automaticamente inscrito no sorteio.
+          Ao entrar, você é automaticamente inscrito no sorteio e concorda com a{' '}
+          <Link href="/privacidade" style={footerLinkStyle}>
+            Política de Privacidade e os Termos de Uso
+          </Link>
+          .
           <br />
           Evento: Unitri · 2026
+        </p>
+
+        {/* Créditos — fora do parágrafo de consentimento, para não competir com ele. */}
+        <p
+          style={{
+            marginTop: '10px',
+            textAlign: 'center',
+            fontSize: '12px',
+            color: 'var(--vscode-text-mute)',
+          }}
+        >
+          <Link href="/creditos" style={footerLinkStyle}>
+            Créditos
+          </Link>
         </p>
       </motion.div>
     </div>
