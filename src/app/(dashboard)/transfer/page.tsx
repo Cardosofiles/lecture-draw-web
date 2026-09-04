@@ -20,6 +20,7 @@ export default async function TransferPage() {
   const participants = await prisma.user.findMany({
     where: {
       isParticipant: true,
+      role: { not: "admin" },
       id: { not: session.user.id },
     },
     orderBy: { name: "asc" },

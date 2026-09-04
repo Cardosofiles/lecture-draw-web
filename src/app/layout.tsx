@@ -3,9 +3,9 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "AI Lecture — Sorteio de PCs | Belo Horizonte",
+  title: "AI Lecture — Sorteio de Configuração | Unitri",
   description:
-    "Sistema de sorteio de 5 configurações completas de PC para participantes da palestra sobre Inteligência Artificial em Belo Horizonte, MG.",
+    "Sistema de sorteio de 5 configurações completas de PC para participantes da palestra sobre Inteligência Artificial na Unitri.",
   keywords: [
     "sorteio",
     "inteligência artificial",

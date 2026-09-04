@@ -16,15 +16,16 @@ const navItems = [
   { href: "/raffle", icon: Ticket, label: "Sorteio" },
   { href: "/participants", icon: Users, label: "Participantes" },
   { href: "/transfer", icon: Gift, label: "Transferir" },
-  { href: "/sql-console", icon: Terminal, label: "SQL Console" },
+  { href: "/sql-console", icon: Terminal, label: "SQL Console", adminOnly: true },
 ];
 
 const bottomItems = [
   { href: "/config", icon: Settings, label: "Configurações" },
 ];
 
-export function ActivityBar() {
+export function ActivityBar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const items = navItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="vscode-activity-bar">
@@ -36,7 +37,7 @@ export function ActivityBar() {
           gap: "2px",
         }}
       >
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

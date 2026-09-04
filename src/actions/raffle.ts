@@ -35,71 +35,84 @@ function shuffle<T>(array: T[]): T[] {
 export async function drawRaffle() {
   await requireAdmin();
 
-  const activeEvent = await prisma.raffleEvent.findFirst({
-    where: { isActive: true },
+  // The whole draw is one transaction: either all 5 prizes get a winner and the
+  // event is marked as drawn, or nothing changes at all.
+  return prisma.$transaction(async (tx) => {
+    const activeEvent = await tx.raffleEvent.findFirst({
+      where: { isActive: true },
+    });
+    if (!activeEvent) {
+      throw new Error(
+        "Nenhum evento ativo configurado. Execute o seed do banco de dados.",
+      );
+    }
+    if (activeEvent.drawnAt) {
+      throw new Error(
+        "O sorteio deste evento já foi realizado e não pode ser repetido.",
+      );
+    }
+
+    // Get all eligible participants — admins are excluded from the draw
+    const entries = await tx.raffleEntry.findMany({
+      where: { user: { role: { not: "admin" } } },
+      include: { user: true },
+    });
+
+    if (entries.length < 5) {
+      throw new Error(
+        `Participantes elegíveis insuficientes. Precisamos de pelo menos 5, mas há apenas ${entries.length} (administradores são excluídos do sorteio).`,
+      );
+    }
+
+    // Get existing prizes
+    const prizes = await tx.rafflePrize.findMany({
+      orderBy: { prizeNumber: "asc" },
+    });
+
+    if (prizes.length < 5) {
+      throw new Error(
+        "Prêmios não configurados. Execute o seed do banco de dados.",
+      );
+    }
+
+    const now = new Date();
+
+    // Claim the draw before touching any prize. The `drawnAt: null` filter makes
+    // this the atomic gate: a second concurrent draw matches 0 rows and aborts.
+    const claimed = await tx.raffleEvent.updateMany({
+      where: { id: activeEvent.id, drawnAt: null },
+      data: { drawnAt: now },
+    });
+    if (claimed.count === 0) {
+      throw new Error(
+        "O sorteio deste evento já foi realizado e não pode ser repetido.",
+      );
+    }
+
+    // Shuffle and pick 5 unique winners
+    const winners = shuffle(entries).slice(0, 5);
+
+    // Assign winners to prizes — sequential so the transaction stays ordered
+    const results = [];
+    for (const [index, prize] of prizes.slice(0, 5).entries()) {
+      results.push(
+        await tx.rafflePrize.update({
+          where: { id: prize.id },
+          data: {
+            winnerId: winners[index].userId,
+            drawnAt: now,
+            transferredToId: null,
+          },
+          include: {
+            winner: true,
+            transferredTo: true,
+          },
+        }),
+      );
+    }
+
+    return results;
   });
-  if (activeEvent?.drawnAt) {
-    throw new Error(
-      "O sorteio deste evento já foi realizado e não pode ser repetido.",
-    );
-  }
-
-  // Get all eligible participants — admins are excluded from the draw
-  const entries = await prisma.raffleEntry.findMany({
-    where: { user: { role: { not: "admin" } } },
-    include: { user: true },
-  });
-
-  if (entries.length < 5) {
-    throw new Error(
-      `Participantes elegíveis insuficientes. Precisamos de pelo menos 5, mas há apenas ${entries.length} (administradores são excluídos do sorteio).`,
-    );
-  }
-
-  // Shuffle and pick 5 unique winners
-  const shuffled = shuffle(entries);
-  const winners = shuffled.slice(0, 5);
-
-  // Get existing prizes
-  const prizes = await prisma.rafflePrize.findMany({
-    orderBy: { prizeNumber: "asc" },
-  });
-
-  if (prizes.length < 5) {
-    throw new Error(
-      "Prêmios não configurados. Execute o seed do banco de dados.",
-    );
-  }
-
-  const now = new Date();
-
-  // Assign winners to prizes
-  const results = await Promise.all(
-    prizes.slice(0, 5).map(async (prize, index) => {
-      const winner = winners[index];
-      const updated = await prisma.rafflePrize.update({
-        where: { id: prize.id },
-        data: {
-          winnerId: winner.userId,
-          drawnAt: now,
-          transferredToId: null,
-        },
-        include: {
-          winner: true,
-          transferredTo: true,
-        },
-      });
-      return updated;
-    }),
-  );
-
-  // Mark the event as drawn
-  await prisma.raffleEvent.updateMany({
-    where: { isActive: true },
-    data: { drawnAt: now },
-  });
-
-  return results;
 }
 
 export async function transferPrize(prizeId: string, recipientId: string) {
@@ -124,7 +137,7 @@ export async function transferPrize(prizeId: string, recipientId: string) {
     where: { id: recipientId },
   });
   if (!recipient) throw new Error("Destinatário não encontrado.");
-  if (!recipient.isParticipant) {
+  if (!recipient.isParticipant || recipient.role === "admin") {
     throw new Error("O destinatário não é um participante do evento.");
   }
   if (recipient.id === session.user.id) {

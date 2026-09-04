@@ -4,12 +4,13 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// BR-27: DROP TABLE, DROP DATABASE, TRUNCATE and ALTER ... DROP are blocked.
+// The keywords Postgres treats as optional (TABLE, COLUMN) must stay optional
+// here too, otherwise `TRUNCATE "User"` walks straight past the guard.
 const BLOCKED_PATTERNS = [
-  /DROP\s+TABLE/i,
-  /DROP\s+DATABASE/i,
-  /DROP\s+SCHEMA/i,
-  /TRUNCATE\s+TABLE/i,
-  /ALTER\s+TABLE.+DROP\s+COLUMN/i,
+  /\bDROP\s+(TABLE|DATABASE|SCHEMA|INDEX|VIEW|SEQUENCE|TYPE|FUNCTION)\b/i,
+  /\bTRUNCATE\b/i,
+  /\bALTER\b[\s\S]*\bDROP\b/i,
 ];
 
 async function requireAdmin() {

@@ -15,9 +15,14 @@ pnpm db:generate  # Regenerate Prisma Client (run after schema changes)
 pnpm db:push      # Apply schema to the database
 pnpm db:seed      # Seed initial data
 pnpm db:studio    # Open Prisma Studio
+
+pnpm test             # Vitest, full suite
+pnpm test:unit        # Unit tests only (no database)
+pnpm test:integration # Integration tests — hit the real Neon database
 ```
 
-No test suite is configured.
+Tests live in `tests/` (`unit/`, `integration/`, `helpers/`). The integration
+suite talks to the database in `DATABASE_URL`, so it asserts on real seeded data.
 
 ## Architecture
 
@@ -35,18 +40,19 @@ No test suite is configured.
 
 ### Key layers
 
-| Layer | Location | Notes |
-|---|---|---|
-| Auth | `src/lib/auth.ts` | Better Auth with Prisma adapter; exposes `auth` (server). Client-side: `src/lib/auth-client.ts` |
-| Database | `src/lib/prisma.ts` | Singleton Prisma client; generated client output is `src/generated/prisma` |
-| Server Actions | `src/actions/` | `raffle.ts`, `sql-console.ts`, `users.ts` — preferred over API routes for mutations |
-| API Routes | `src/app/api/` | Auth catch-all (`[...all]`), participant count, raffle draw/transfer, account deletion |
-| Data Fetching | TanStack Query v5 + Axios | `Providers` in `src/components/providers.tsx` wraps the tree; `staleTime: 60s` |
-| UI | Shadcn UI + Radix UI + Tailwind CSS v4 | No theme provider — `next-themes` is a dependency but Providers only wraps QueryClient |
+| Layer          | Location                               | Notes                                                                                           |
+| -------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Auth           | `src/lib/auth.ts`                      | Better Auth with Prisma adapter; exposes `auth` (server). Client-side: `src/lib/auth-client.ts` |
+| Database       | `src/lib/prisma.ts`                    | Singleton Prisma client; generated client output is `src/generated/prisma`                      |
+| Server Actions | `src/actions/`                         | `raffle.ts`, `sql-console.ts`, `users.ts` — preferred over API routes for mutations             |
+| API Routes     | `src/app/api/`                         | Auth catch-all (`[...all]`), participant count, raffle draw/transfer, account deletion          |
+| Data Fetching  | TanStack Query v5 + Axios              | `Providers` in `src/components/providers.tsx` wraps the tree; `staleTime: 60s`                  |
+| UI             | Shadcn UI + Radix UI + Tailwind CSS v4 | No theme provider — `next-themes` is a dependency but Providers only wraps QueryClient          |
 
 ### User model extensions
 
 `User` has two custom fields beyond Better Auth defaults:
+
 - `role` — `"user"` (default) or `"admin"`
 - `isParticipant` — whether the user is eligible for the raffle
 
@@ -60,6 +66,7 @@ No test suite is configured.
 ### Environment variables
 
 See `.env.example` for required vars:
+
 - `DATABASE_URL` — Neon PostgreSQL connection string
 - `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`

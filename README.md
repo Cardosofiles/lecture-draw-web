@@ -5,6 +5,7 @@ Sistema de sorteio para palestra sobre Inteligência Artificial. O host sorteia 
 ## 🎨 UI Theme
 
 O app imita o VS Code com paleta HUD cyberpunk escura:
+
 - Activity Bar (48px) + Sidebar (240px) + Editor Area
 - Cores neon: `#00e5ff` (cyan), `#ff39d2` (magenta), `#2cf2a3` (green)
 - Fontes: Space Grotesk, JetBrains Mono, Inter
@@ -12,16 +13,16 @@ O app imita o VS Code com paleta HUD cyberpunk escura:
 
 ## 🛠️ Stack
 
-| Camada | Tecnologia |
-|--------|------------|
-| Framework | Next.js 16 (App Router, TypeScript) |
-| Auth | Better Auth (Google + GitHub OAuth) |
-| Database | Neon DB (PostgreSQL serverless) |
-| ORM | Prisma 7 |
-| UI | Shadcn UI + Radix UI + TailwindCSS v4 |
-| Data Fetching | TanStack Query v5 + Axios |
-| Animações | Framer Motion |
-| Package Manager | **pnpm** |
+| Camada          | Tecnologia                            |
+| --------------- | ------------------------------------- |
+| Framework       | Next.js 16 (App Router, TypeScript)   |
+| Auth            | Better Auth (Google + GitHub OAuth)   |
+| Database        | Neon DB (PostgreSQL serverless)       |
+| ORM             | Prisma 7                              |
+| UI              | Shadcn UI + Radix UI + TailwindCSS v4 |
+| Data Fetching   | TanStack Query v5 + Axios             |
+| Animações       | Framer Motion                         |
+| Package Manager | **pnpm**                              |
 
 ## 🚀 Setup
 
@@ -99,12 +100,14 @@ src/
 ## 🔑 Configurar OAuth
 
 ### Google
+
 1. [console.cloud.google.com](https://console.cloud.google.com)
 2. Criar projeto → APIs & Services → Credentials
 3. OAuth 2.0 Client ID → Web Application
 4. Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google`
 
 ### GitHub
+
 1. [github.com/settings/developers](https://github.com/settings/developers)
 2. OAuth Apps → New OAuth App
 3. Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
@@ -112,11 +115,13 @@ src/
 ## 👑 Administrador
 
 Execute o seed com `ADMIN_EMAIL` definido para promover o usuário a admin:
+
 ```bash
 ADMIN_EMAIL=seu@email.com pnpm db:seed
 ```
 
 Ou via SQL Console (após ser admin):
+
 ```sql
 UPDATE "User" SET role = 'admin' WHERE email = 'seu@email.com';
 ```

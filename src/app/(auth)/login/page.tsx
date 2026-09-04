@@ -151,7 +151,7 @@ export default function LoginPage() {
               className="text-glow"
               style={{ color: "var(--vscode-accent)" }}
             >
-              Sorteio de PCs
+              Sorteio de Configuração
             </span>
           </h1>
           <p
@@ -296,10 +296,9 @@ export default function LoginPage() {
             lineHeight: 1.5,
           }}
         >
-          Ao entrar, você é automaticamente inscrito no sorteio de 5 PCs
-          completos.
+          Ao entrar, você é automaticamente inscrito no sorteio.
           <br />
-          Evento: Belo Horizonte, MG · 2026
+          Evento: Unitri · 2026
         </p>
       </motion.div>
     </div>

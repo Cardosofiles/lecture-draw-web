@@ -3,69 +3,91 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WinnerModal } from "@/components/raffle/WinnerModal";
-
-interface PrizeResult {
-  id: string;
-  prizeNumber: number;
-  description: string;
-  winnerId: string | null;
-  transferredToId: string | null;
-}
+import {
+  drawRefreshedKey,
+  hasBeenDrawn,
+  nextPollDelay,
+  pendingWinnerPrize,
+  winnerSeenKey,
+  type PrizeSnapshot,
+} from "@/lib/raffle-notifications";
 
 interface Props {
   currentUserId: string;
 }
 
-const WINNER_MODAL_KEY = "raffle_winner_seen";
-const DRAW_REFRESHED_KEY = "raffle_draw_refreshed";
+/** localStorage is unavailable in some privacy modes — never break the page. */
+function safeStorage(store: () => Storage) {
+  return {
+    has(key: string) {
+      try {
+        return store().getItem(key) !== null;
+      } catch {
+        return false;
+      }
+    },
+    mark(key: string) {
+      try {
+        store().setItem(key, "1");
+      } catch {
+        /* ignore */
+      }
+    },
+  };
+}
 
 export function RaffleNotifier({ currentUserId }: Props) {
   const router = useRouter();
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [winnerPrize, setWinnerPrize] = useState<PrizeResult | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [winnerPrize, setWinnerPrize] = useState<PrizeSnapshot | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+    let attempt = 0;
+    const local = safeStorage(() => localStorage);
+    const session = safeStorage(() => sessionStorage);
+
     const check = async () => {
       try {
         const res = await fetch("/api/raffle/results");
-        if (!res.ok) return;
-        const prizes: PrizeResult[] = await res.json();
+        if (!res.ok) return false;
+        const prizes: PrizeSnapshot[] = await res.json();
+        if (!hasBeenDrawn(prizes)) return false;
 
-        const drawn = prizes.some((p) => p.winnerId);
-        if (!drawn) return;
-
-        // Draw happened — stop polling
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
+        // Winner modal is scoped to this user and this draw, so two people on
+        // one browser each see theirs, and a re-draw notifies again.
+        const mine = pendingWinnerPrize(prizes, currentUserId, local.has);
+        if (mine) {
+          local.mark(winnerSeenKey(currentUserId, mine));
+          setWinnerPrize(mine);
+          setModalOpen(true);
         }
 
-        // Show winner modal once per device (localStorage persists across sessions)
-        if (!localStorage.getItem(WINNER_MODAL_KEY)) {
-          const myPrize = prizes.find((p) => p.winnerId === currentUserId);
-          if (myPrize) {
-            localStorage.setItem(WINNER_MODAL_KEY, "1");
-            setWinnerPrize(myPrize);
-            setModalOpen(true);
-          }
-        }
-
-        // Refresh once per browser session so the draw results appear for everyone
-        if (!sessionStorage.getItem(DRAW_REFRESHED_KEY)) {
-          sessionStorage.setItem(DRAW_REFRESHED_KEY, "1");
+        // Refresh once per draw so the results appear for everyone
+        const refreshKey = drawRefreshedKey(prizes);
+        if (!session.has(refreshKey)) {
+          session.mark(refreshKey);
           router.refresh();
         }
+        return true;
       } catch {
         // silent — network errors shouldn't break the UI
+        return false;
       }
     };
 
-    check(); // immediate check on mount
-    intervalRef.current = setInterval(check, 3000);
+    const loop = async () => {
+      const drawn = await check();
+      if (cancelled || drawn) return; // draw landed: stop polling
+      timeoutRef.current = setTimeout(loop, nextPollDelay(attempt++));
+    };
+
+    void loop();
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      cancelled = true;
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [currentUserId, router]);
 

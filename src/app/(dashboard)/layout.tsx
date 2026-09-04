@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getParticipantCount } from "@/actions/users";
 import { ActivityBar } from "@/components/vscode/ActivityBar";
 import { Sidebar } from "@/components/vscode/Sidebar";
 import { TabBar } from "@/components/vscode/TabBar";
@@ -18,14 +18,14 @@ export default async function DashboardLayout({
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/login");
 
-  const participantCount = await prisma.raffleEntry.count();
+  const participantCount = await getParticipantCount();
   const isAdmin = session.user.role === "admin";
 
   return (
     <div className="vscode-shell">
       <div className="vscode-main">
         {/* Activity Bar — desktop only */}
-        <ActivityBar />
+        <ActivityBar isAdmin={isAdmin} />
 
         {/* Sidebar — desktop only */}
         <Sidebar isAdmin={isAdmin} />

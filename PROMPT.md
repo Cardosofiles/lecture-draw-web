@@ -578,7 +578,7 @@ Create `prisma/seed.ts` that:
    - title: "Palestra sobre IA — Sorteio de PCs"
    - description: "Evento de sorteio de 5 configurações completas de PC para participantes da palestra sobre Inteligência Artificial."
    - eventDate: set to a future date
-   - location: "Belo Horizonte, MG"
+   - location: "Uberlândia, MG"
 2. Seeds 5 RafflePrize records:
    - Prize 1: "PC Setup #1 — Windows 11"
    - Prize 2: "PC Setup #2 — Ubuntu Linux"

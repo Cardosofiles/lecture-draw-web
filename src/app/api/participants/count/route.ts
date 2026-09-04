@@ -1,17 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 
+// BR-09: public participant count — consumed by the unauthenticated /login page.
+// Only an aggregate is exposed, never participant data.
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return NextResponse.json(
-      { error: "Autenticação necessária." },
-      { status: 401 },
-    );
-  }
-
   const count = await prisma.raffleEntry.count({
     where: { user: { role: { not: "admin" } } },
   });

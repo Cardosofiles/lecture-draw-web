@@ -11,20 +11,29 @@ export async function deleteAccount() {
 
   const userId = session.user.id;
 
-  // Nullify any prizes won (unawarded so they can be redrawn)
-  await prisma.rafflePrize.updateMany({
-    where: { winnerId: userId },
-    data: { winnerId: null, drawnAt: null },
-  });
+  await prisma.$transaction(async (tx) => {
+    // Nullify any prizes won (unawarded so they can be redrawn)
+    await tx.rafflePrize.updateMany({
+      where: { winnerId: userId },
+      data: { winnerId: null, drawnAt: null },
+    });
 
-  // Also clear transferred prizes to this user
-  await prisma.rafflePrize.updateMany({
-    where: { transferredToId: userId },
-    data: { transferredToId: null },
-  });
+    // Also clear transferred prizes to this user
+    await tx.rafflePrize.updateMany({
+      where: { transferredToId: userId },
+      data: { transferredToId: null },
+    });
 
-  // Delete the user (cascades: Session, Account, RaffleEntry, QueryLog)
-  await prisma.user.delete({ where: { id: userId } });
+    // TransferLog and QueryLog reference User with ON DELETE RESTRICT, so their
+    // rows have to go first or user.delete() fails with a foreign key error.
+    await tx.transferLog.deleteMany({
+      where: { OR: [{ fromUserId: userId }, { toUserId: userId }] },
+    });
+    await tx.queryLog.deleteMany({ where: { userId } });
+
+    // Delete the user (cascades: Session, Account, RaffleEntry)
+    await tx.user.delete({ where: { id: userId } });
+  });
 
   redirect("/login");
 }

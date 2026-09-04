@@ -34,16 +34,25 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          // Auto-enroll new users — but admins are excluded from the raffle
-          const u = user as typeof user & { role?: string };
-          if (u.role === "admin") return;
-          try {
-            await prisma.raffleEntry.create({
-              data: { userId: user.id },
+          // Auto-enroll new users — but admins are excluded from the raffle.
+          // `role` is always its "user" default at create time (the seed promotes
+          // the admin afterwards), so the admin has to be spotted by e-mail.
+          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+          if (adminEmail && user.email.toLowerCase() === adminEmail) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { role: "admin", isParticipant: false },
             });
-          } catch {
-            // ignore duplicate-key errors on upsert race
+            return;
           }
+          // Upsert, not create-and-swallow: a duplicate-key INSERT aborts the
+          // surrounding Postgres transaction, so catching the error in JS is not
+          // enough to make a retried OAuth callback safe.
+          await prisma.raffleEntry.upsert({
+            where: { userId: user.id },
+            update: {},
+            create: { userId: user.id },
+          });
         },
       },
     },

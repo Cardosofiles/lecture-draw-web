@@ -51,7 +51,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isAuthPath && sessionToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+    // Send them back where they were headed; "/" dispatches to /dashboard.
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+    const target = callbackUrl?.startsWith("/") ? callbackUrl : "/";
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   return NextResponse.next();

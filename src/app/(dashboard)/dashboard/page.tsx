@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { getParticipantCount } from "@/actions/users";
 import { DashboardHome } from "@/components/dashboard/DashboardHome";
 
 export const metadata = {
@@ -14,7 +15,7 @@ export default async function DashboardPage() {
 
   const [event, participantCount, prizes] = await Promise.all([
     prisma.raffleEvent.findFirst({ where: { isActive: true } }),
-    prisma.raffleEntry.count(),
+    getParticipantCount(),
     prisma.rafflePrize.findMany({ where: { winnerId: { not: null } } }),
   ]);
 

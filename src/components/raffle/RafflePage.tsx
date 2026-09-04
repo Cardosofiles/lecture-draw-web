@@ -113,7 +113,7 @@ export function RafflePage({ prizes, event, currentUserId, isAdmin }: Props) {
         <p style={{ fontSize: "14px", color: "var(--vscode-text-muted)" }}>
           {hasBeenDrawn
             ? "Ganhadores do sorteio"
-            : "5 configuração de Ambiente de Desenvolvimento de completos para Desenvolvedores"}
+            : "5 configuração de Ambiente de Desenvolvimento completos para Desenvolvedores"}
         </p>
       </motion.div>
 

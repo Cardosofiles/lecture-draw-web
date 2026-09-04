@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Users, Trophy, Clock, Cpu } from "lucide-react";
 import { TechStackSection } from "./TechStackSection";
@@ -30,36 +30,80 @@ interface Props {
   hasBeenDrawn: boolean;
 }
 
-function useCountdown(targetDate: Date | null) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+// A palestra acontece em Uberlândia-MG, então a data/hora exibida é sempre
+// a de Brasília — independente do fuso do servidor ou do navegador.
+const BRAZIL_TZ = "America/Sao_Paulo";
 
-  useEffect(() => {
-    if (!targetDate) return;
-    const update = () => {
-      const now = Date.now();
-      const target = new Date(targetDate).getTime();
-      const diff = Math.max(0, target - now);
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / (1000 * 60)) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-      });
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
-  }, [targetDate]);
-
-  return timeLeft;
+interface Countdown {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  isFinished: boolean;
 }
 
-function CountdownUnit({ value, label }: { value: number; label: string }) {
+function getTimeLeft(target: number, now: number): Countdown {
+  const diff = Math.max(0, target - now);
+  return {
+    days: Math.floor(diff / 86_400_000),
+    hours: Math.floor(diff / 3_600_000) % 24,
+    minutes: Math.floor(diff / 60_000) % 60,
+    seconds: Math.floor(diff / 1000) % 60,
+    isFinished: diff === 0,
+  };
+}
+
+// Um único relógio para a página inteira: um intervalo, quantos contadores
+// existirem. O valor fica em cache porque `getSnapshot` precisa ser estável
+// entre leituras do mesmo render.
+let clockNow = Date.now();
+const clockListeners = new Set<() => void>();
+let clockTimer: ReturnType<typeof setInterval> | null = null;
+
+function subscribeToClock(onTick: () => void) {
+  clockNow = Date.now();
+  clockListeners.add(onTick);
+  clockTimer ??= setInterval(() => {
+    clockNow = Date.now();
+    for (const listener of clockListeners) listener();
+  }, 1000);
+
+  return () => {
+    clockListeners.delete(onTick);
+    if (clockListeners.size === 0 && clockTimer) {
+      clearInterval(clockTimer);
+      clockTimer = null;
+    }
+  };
+}
+
+/**
+ * Conta o tempo até `targetDate` — a data do evento vinda do banco.
+ *
+ * No servidor devolve `null` de propósito: o relógio do servidor e o do
+ * navegador nunca batem no mesmo segundo, então a contagem só aparece depois
+ * da hidratação e o HTML renderizado nos dois lados continua idêntico.
+ */
+function useCountdown(targetDate: Date | string | null): Countdown | null {
+  const now = useSyncExternalStore(
+    subscribeToClock,
+    () => clockNow,
+    () => null,
+  );
+
+  const target = targetDate ? new Date(targetDate).getTime() : Number.NaN;
+  if (now === null || Number.isNaN(target)) return null;
+
+  return getTimeLeft(target, now);
+}
+
+function CountdownUnit({
+  value,
+  label,
+}: {
+  value: number | null;
+  label: string;
+}) {
   return (
     <div style={{ textAlign: "center", minWidth: "60px" }}>
       <div
@@ -72,7 +116,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
           textShadow: "0 0 20px rgba(0,229,255,0.5)",
         }}
       >
-        {String(value).padStart(2, "0")}
+        {value === null ? "--" : String(value).padStart(2, "0")}
       </div>
       <div
         style={{
@@ -85,6 +129,21 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
         {label}
       </div>
     </div>
+  );
+}
+
+function CountdownSeparator() {
+  return (
+    <span
+      style={{
+        color: "var(--vscode-accent-dim)",
+        fontSize: "28px",
+        fontFamily: "var(--font-mono)",
+        lineHeight: 1,
+      }}
+    >
+      :
+    </span>
   );
 }
 
@@ -346,10 +405,28 @@ export function DashboardHome({
                 <Calendar size={14} style={{ color: "var(--vscode-blue)" }} />
                 {new Date(event.eventDate).toLocaleDateString("pt-BR", {
                   weekday: "long",
-                  year: "numeric",
-                  month: "long",
                   day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  timeZone: BRAZIL_TZ,
                 })}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "13px",
+                  color: "var(--vscode-text-muted)",
+                }}
+              >
+                <Clock size={14} style={{ color: "var(--vscode-accent)" }} />
+                {new Date(event.eventDate).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZone: BRAZIL_TZ,
+                })}
+                {" (horário de Brasília)"}
               </div>
             </div>
 
@@ -371,44 +448,62 @@ export function DashboardHome({
                   <Clock size={12} />
                   Contagem regressiva para o sorteio
                 </div>
-                <div
-                  style={{ display: "flex", gap: "24px", alignItems: "center" }}
-                >
-                  <CountdownUnit value={countdown.days} label="dias" />
-                  <span
+
+                {countdown?.isFinished ? (
+                  <div
                     style={{
-                      color: "var(--vscode-accent-dim)",
-                      fontSize: "28px",
-                      fontFamily: "var(--font-mono)",
-                      lineHeight: 1,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      background: "var(--vscode-accent-ghost)",
+                      border: "1px solid var(--vscode-accent-dim)",
                     }}
                   >
-                    :
-                  </span>
-                  <CountdownUnit value={countdown.hours} label="horas" />
-                  <span
+                    <Trophy
+                      size={16}
+                      style={{ color: "var(--vscode-accent)" }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        color: "var(--vscode-accent)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Chegou a hora! O sorteio acontece ao vivo na palestra.
+                    </span>
+                  </div>
+                ) : (
+                  <div
                     style={{
-                      color: "var(--vscode-accent-dim)",
-                      fontSize: "28px",
-                      fontFamily: "var(--font-mono)",
-                      lineHeight: 1,
+                      display: "flex",
+                      gap: "24px",
+                      alignItems: "center",
                     }}
                   >
-                    :
-                  </span>
-                  <CountdownUnit value={countdown.minutes} label="min" />
-                  <span
-                    style={{
-                      color: "var(--vscode-accent-dim)",
-                      fontSize: "28px",
-                      fontFamily: "var(--font-mono)",
-                      lineHeight: 1,
-                    }}
-                  >
-                    :
-                  </span>
-                  <CountdownUnit value={countdown.seconds} label="seg" />
-                </div>
+                    <CountdownUnit
+                      value={countdown?.days ?? null}
+                      label="dias"
+                    />
+                    <CountdownSeparator />
+                    <CountdownUnit
+                      value={countdown?.hours ?? null}
+                      label="horas"
+                    />
+                    <CountdownSeparator />
+                    <CountdownUnit
+                      value={countdown?.minutes ?? null}
+                      label="min"
+                    />
+                    <CountdownSeparator />
+                    <CountdownUnit
+                      value={countdown?.seconds ?? null}
+                      label="seg"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
