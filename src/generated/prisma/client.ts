@@ -53,7 +53,14 @@ export type User = Prisma.UserModel
 export type Session = Prisma.SessionModel
 /**
  * Model Account
+ * `issuer` é exigido pelo Better Auth >= 1.7: `findAccountByKey` procura a
+ * conta por (issuer, accountId), e não mais por (providerId, accountId).
+ * Sem a coluna, o callback do OAuth morre em PrismaClientValidationError
+ * ("Unknown argument `issuer`") e o login nunca completa.
  * 
+ * O valor sai do provedor: `https://accounts.google.com` para o Google, que
+ * declara um issuer OIDC explícito, e `local:oauth:github` para o GitHub, que
+ * não declara e cai no default `createOAuthAccountIssuer(<providerId>)`.
  */
 export type Account = Prisma.AccountModel
 /**
