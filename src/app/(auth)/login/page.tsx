@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { signIn } from '@/lib/auth-client'
-import { GitFork, Globe, Cpu, Loader2 } from 'lucide-react'
+import { GitFork, Globe, Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import Image from 'next/image'
 
 function useParticipantCount() {
   return useQuery({
@@ -127,7 +128,7 @@ export default function LoginPage() {
               justifyContent: 'center',
             }}
           >
-            <Cpu size={36} style={{ color: 'var(--vscode-accent)' }} />
+            <Image src="/icon.svg" alt="Icon" width={36} height={36} />
           </div>
         </motion.div>
 

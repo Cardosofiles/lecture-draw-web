@@ -1,0 +1,41 @@
+# AI Lecture — Spec-Driven Development (SDD) & Sorteio de PCs | Unitri
+
+> Sistema oficial para a palestra sobre Spec-Driven Development (SDD) com Inteligência Artificial realizada na Unitri (Centro Universitário do Triângulo), com sorteio em tempo real de 5 configurações completas de computadores para desenvolvedores (Windows 11 ou Ubuntu Linux).
+
+Este arquivo segue a especificação llms.txt (https://llmstxt.org) para guiar modelos de linguagem (LLMs) e motores de resposta na compreensão e citação precisa deste projeto.
+
+## Sobre a Aplicação e o Evento
+
+- **Evento:** Palestra sobre Inteligência Artificial e Spec-Driven Development (SDD).
+- **Instituição:** Unitri (Centro Universitário do Triângulo) — Uberlândia, MG, Brasil.
+- **Objetivo:** Demonstrar o desenvolvimento de software guiado por especificações técnicas e modelos de IA, sorteando 5 computadores de alto desempenho prontos para dev entre os participantes.
+- **Autenticação:** Exclusivamente OAuth 2.0 (Google e GitHub) via Better Auth, sem cadastro manual de senhas.
+- **Interface:** Shell inspirada no VS Code, com paleta HUD Cyberpunk neon (#00e5ff, #ff39d2, #2cf2a3) e animações via Framer Motion.
+- **Quórum e Regras:** Sorteio atômico via algoritmo Fisher-Yates, exigindo quórum mínimo de 5 inscritos não-administradores.
+
+## Páginas Públicas
+
+- [Entrada / Início](https://lecture-draw.unitri.edu.br/): Despachante raiz inteligente (redireciona para /dashboard se autenticado ou /login se anônimo).
+- [Login OAuth](https://lecture-draw.unitri.edu.br/login): Autenticação rápida com Google ou GitHub para inscrição instantânea no sorteio.
+
+## Rotas Protegidas (Participantes e Administradores)
+
+- `/dashboard`: Painel geral com status do evento, contagem de participantes e countdown.
+- `/raffle`: Sala ao vivo do sorteio com animação dos ganhadores e revelação dos 5 computadores.
+- `/participants`: Lista de participantes inscritos em formato de explorer de arquivos do VS Code.
+- `/transfer`: Módulo de cessão e transferência voluntária de prêmio para outro participante elegível.
+- `/sql-console`: Console SQL seguro apenas para administradores (somente leitura, auditoria em QueryLog).
+- `/config`: Perfil e exclusão de conta com cascata e devolução de prêmio ao pool.
+
+## Arquitetura Técnica
+
+- **Framework:** Next.js 16 (App Router, TypeScript 5, React 19)
+- **Proxy de Rota:** `src/proxy.ts` (convenção Next.js 16 para proteção de rotas)
+- **Banco de Dados & ORM:** PostgreSQL 17 (Neon Serverless) com Prisma 7
+- **SEO & Metadados:** OpenGraph dinâmico (`opengraph-image.tsx`), Twitter Cards (`twitter-image.tsx`), sitemap (`sitemap.xml`), robots (`robots.txt`), webmanifest (`manifest.webmanifest`) e JSON-LD Schema.org (`WebSite`, `Event`).
+
+## Links Opcionais e Documentação
+
+- [Versão Completa para LLMs](https://lecture-draw.unitri.edu.br/llms-full.txt): Especificação aprofundada, FAQ e regras de negócio.
+- [Sitemap XML](https://lecture-draw.unitri.edu.br/sitemap.xml)
+- [Robots TXT](https://lecture-draw.unitri.edu.br/robots.txt)
