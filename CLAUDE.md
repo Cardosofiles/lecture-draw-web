@@ -58,6 +58,11 @@ never touched. `neon-readiness` is `workflow_dispatch`-only and uses
 ### Route groups
 
 - `(auth)/login` — OAuth login page (Google + GitHub via Better Auth)
+- `(public)/` — Open pages, no session required, prerendered as static
+  - `privacidade/` — Privacy policy + terms; the data inventory is rendered from
+    `src/modules/legal/data/data-collection.ts`, which mirrors `prisma/schema.prisma`.
+    **Update that file when the schema gains or loses a column holding personal data.**
+  - `creditos/` — Dedication / credits page for the author
 - `(dashboard)/` — Protected shell with a VS Code–themed layout (ActivityBar, Sidebar, TabBar, StatusBar, Terminal). All dashboard pages live here.
   - `dashboard/` — Landing with event info
   - `raffle/` — Draw prizes, display winners

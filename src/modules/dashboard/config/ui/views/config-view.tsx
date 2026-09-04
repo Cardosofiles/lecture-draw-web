@@ -6,6 +6,7 @@ import { deleteAccount } from '@/actions/users'
 import * as Dialog from '@radix-ui/react-dialog'
 import { Trash2, User, AlertTriangle, X, LogOut, Loader2 } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 /**
@@ -287,6 +288,30 @@ export function ConfigView() {
           </button>
         </div>
       </section>
+
+      {/* Transparência: o que exatamente é guardado e o que a exclusão apaga. */}
+      <p
+        style={{
+          marginTop: '20px',
+          fontSize: '13px',
+          lineHeight: 1.6,
+          color: 'var(--vscode-text-mute)',
+        }}
+      >
+        Quer saber exatamente quais dados o sistema guarda sobre você e o que a exclusão apaga?
+        Consulte a{' '}
+        <Link
+          href="/privacidade"
+          style={{
+            color: 'var(--vscode-accent)',
+            textDecoration: 'underline',
+            textUnderlineOffset: '3px',
+          }}
+        >
+          Política de Privacidade
+        </Link>
+        .
+      </p>
 
       {/* Confirmation Dialog */}
       <Dialog.Root open={open} onOpenChange={handleOpenChange}>
