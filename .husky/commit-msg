@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Conventional Commits com assunto em pt-BR (commitlint.config.mjs).
+# Até este hook existir, a configuração estava no repo sem ser invocada por nada.
+pnpm exec commitlint --edit "$1"

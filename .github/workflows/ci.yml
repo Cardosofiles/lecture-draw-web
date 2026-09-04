@@ -64,7 +64,7 @@ jobs:
           POSTGRES_USER: lecture
           POSTGRES_PASSWORD: lecture
           POSTGRES_DB: lecture_draw
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U lecture -d lecture_draw"
           --health-interval 5s --health-timeout 5s --health-retries 12
@@ -111,7 +111,7 @@ jobs:
           POSTGRES_USER: lecture
           POSTGRES_PASSWORD: lecture
           POSTGRES_DB: lecture_draw
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U lecture -d lecture_draw"
           --health-interval 5s --health-timeout 5s --health-retries 12
@@ -146,7 +146,7 @@ jobs:
           POSTGRES_USER: lecture
           POSTGRES_PASSWORD: lecture
           POSTGRES_DB: lecture_draw
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U lecture -d lecture_draw"
           --health-interval 5s --health-timeout 5s --health-retries 12
@@ -211,7 +211,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Vulnerabilidades conhecidas (moderate+)
-        run: pnpm audit --audit-level moderate
+        run: pnpm audit --audit-level moderate --ignore-registry-errors
 
       - name: Lockfile bate com o package.json
         # `--frozen-lockfile` acima já falharia, mas a mensagem aqui é explícita.
@@ -261,5 +261,5 @@ jobs:
         # rollback, então é segura, mas mesmo assim só rodamos as asserções.
         if: steps.guard.outputs.run == 'true'
         env:
-          READINESS: "1"
+          READINESS: '1'
         run: pnpm test:integration

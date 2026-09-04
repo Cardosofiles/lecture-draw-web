@@ -1,10 +1,10 @@
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { prisma } from './prisma'
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  database: prismaAdapter(prisma, { provider: 'postgresql' }),
+  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
   secret: process.env.BETTER_AUTH_SECRET,
   socialProviders: {
     google: {
@@ -29,28 +29,28 @@ export const auth = betterAuth({
     // Armazenamento em memória é por instância: em serverless o teto efetivo
     // vira (instâncias × max). Aceitável aqui — isto é válvula de segurança,
     // não fronteira de segurança — e evita 2 idas ao Neon por request de auth.
-    storage: "memory",
+    storage: 'memory',
     window: 60,
     max: 2000,
     customRules: {
       // Pico de chegada: a sala toda logando nos mesmos poucos minutos.
-      "/sign-in/social": { window: 60, max: 900 },
-      "/callback/*": { window: 60, max: 900 },
-      "/get-session": { window: 60, max: 2000 },
+      '/sign-in/social': { window: 60, max: 900 },
+      '/callback/*': { window: 60, max: 900 },
+      '/get-session': { window: 60, max: 2000 },
       // Nada legítimo martela estes caminhos.
-      "/sign-out": { window: 60, max: 120 },
-      "/delete-user": { window: 60, max: 20 },
+      '/sign-out': { window: 60, max: 120 },
+      '/delete-user': { window: 60, max: 20 },
     },
   },
   user: {
     additionalFields: {
       role: {
-        type: "string",
-        defaultValue: "user",
+        type: 'string',
+        defaultValue: 'user',
         input: false,
       },
       isParticipant: {
-        type: "boolean",
+        type: 'boolean',
         defaultValue: true,
         input: false,
       },
@@ -63,13 +63,13 @@ export const auth = betterAuth({
           // Auto-enroll new users — but admins are excluded from the raffle.
           // `role` is always its "user" default at create time (the seed promotes
           // the admin afterwards), so the admin has to be spotted by e-mail.
-          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
+          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
           if (adminEmail && user.email.toLowerCase() === adminEmail) {
             await prisma.user.update({
               where: { id: user.id },
-              data: { role: "admin", isParticipant: false },
-            });
-            return;
+              data: { role: 'admin', isParticipant: false },
+            })
+            return
           }
           // Upsert, not create-and-swallow: a duplicate-key INSERT aborts the
           // surrounding Postgres transaction, so catching the error in JS is not
@@ -78,11 +78,11 @@ export const auth = betterAuth({
             where: { userId: user.id },
             update: {},
             create: { userId: user.id },
-          });
+          })
         },
       },
     },
   },
-});
+})
 
-export type Session = typeof auth.$Infer.Session;
+export type Session = typeof auth.$Infer.Session

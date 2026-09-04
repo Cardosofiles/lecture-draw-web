@@ -1,25 +1,21 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { getParticipantCount } from "@/actions/users";
-import { ActivityBar } from "@/components/vscode/ActivityBar";
-import { Sidebar } from "@/components/vscode/Sidebar";
-import { TabBar } from "@/components/vscode/TabBar";
-import { StatusBar } from "@/components/vscode/StatusBar";
-import { Terminal } from "@/components/vscode/Terminal";
-import { MobileNav } from "@/components/vscode/MobileNav";
-import { RaffleNotifier } from "@/components/raffle/RaffleNotifier";
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { getParticipantCount } from '@/actions/users'
+import { ActivityBar } from '@/components/vscode/ActivityBar'
+import { Sidebar } from '@/components/vscode/Sidebar'
+import { TabBar } from '@/components/vscode/TabBar'
+import { StatusBar } from '@/components/vscode/StatusBar'
+import { Terminal } from '@/components/vscode/Terminal'
+import { MobileNav } from '@/components/vscode/MobileNav'
+import { RaffleNotifier } from '@/components/raffle/RaffleNotifier'
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/login");
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) redirect('/login')
 
-  const participantCount = await getParticipantCount();
-  const isAdmin = session.user.role === "admin";
+  const participantCount = await getParticipantCount()
+  const isAdmin = session.user.role === 'admin'
 
   return (
     <div className="vscode-shell">
@@ -36,11 +32,11 @@ export default async function DashboardLayout({
           <div
             style={{
               flex: 1,
-              overflowY: "auto",
-              position: "relative",
+              overflowY: 'auto',
+              position: 'relative',
             }}
           >
-            <div className="grid-bg" style={{ minHeight: "100%" }}>
+            <div className="grid-bg" style={{ minHeight: '100%' }}>
               {children}
             </div>
           </div>
@@ -55,5 +51,5 @@ export default async function DashboardLayout({
       {/* Global raffle notifier — polls until draw, shows winner modal */}
       <RaffleNotifier currentUserId={session.user.id} />
     </div>
-  );
+  )
 }

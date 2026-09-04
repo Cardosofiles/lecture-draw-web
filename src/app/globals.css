@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@300..700&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@300..700&display=swap');
+@import 'tailwindcss';
 
 /* ─── HUD / Cyberpunk Dark Palette ─────────────────────────────── */
 :root {
@@ -28,9 +28,9 @@
   --grid-strong: rgba(0, 200, 255, 0.14);
 
   /* Typography */
-  --font-display: "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
 }
 
 /* ─── Tailwind v4 Theme Tokens ──────────────────────────────────── */
@@ -243,7 +243,7 @@ body {
 }
 
 .vscode-tab.active::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 0;
@@ -278,7 +278,7 @@ body {
 }
 
 .activity-icon.active::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 8px;
@@ -364,7 +364,7 @@ body {
 }
 
 .winner-card::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
