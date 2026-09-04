@@ -13,8 +13,14 @@ vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/prisma', () => ({ prisma }))
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: () => getSession() } } }))
 
-const { drawRaffle, transferPrize, getRaffleResults, getRaffleEvent } =
-  await import('@/actions/raffle')
+const {
+  drawRaffle,
+  transferPrize,
+  drawRaffleAction,
+  transferPrizeAction,
+  getRaffleResults,
+  getRaffleEvent,
+} = await import('@/actions/raffle')
 
 function makeEntries(n: number) {
   return Array.from({ length: n }, (_, i) => ({
@@ -299,5 +305,70 @@ describe('read helpers', () => {
     expect(prisma.raffleEvent.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { isActive: true } })
     )
+  })
+})
+
+/**
+ * Em produção o Next.js descarta a mensagem de qualquer exceção que atravessa
+ * a fronteira de uma Server Action, e o React minificado a substitui por
+ * "Minified React error #441" — foi o que a plateia viu em /raffle no lugar de
+ * "Participantes elegíveis insuficientes". As ações consumidas por Client
+ * Components devolvem a recusa como dado justamente para escapar disso.
+ */
+describe('*Action wrappers — a recusa volta como dado, não como exceção', () => {
+  it('devolve a mensagem real quando faltam participantes', async () => {
+    getSession.mockResolvedValue(adminSession)
+    prisma.raffleEvent.findFirst.mockResolvedValue({ id: 'e1', drawnAt: null })
+    prisma.raffleEntry.findMany.mockResolvedValue(makeEntries(2))
+
+    const result = await drawRaffleAction()
+
+    expect(result).toEqual({ ok: false, error: expect.stringMatching(/pelo menos 5/i) })
+    expect(result.ok === false && result.error).not.toMatch(/Minified React error/i)
+  })
+
+  it('devolve a mensagem real quando o chamador não é admin', async () => {
+    getSession.mockResolvedValue(userSession())
+    const result = await drawRaffleAction()
+    expect(result).toEqual({ ok: false, error: expect.stringMatching(/somente administradores/i) })
+  })
+
+  it('entrega os prêmios sorteados em `data` no caminho feliz', async () => {
+    getSession.mockResolvedValue(adminSession)
+    prisma.raffleEvent.findFirst.mockResolvedValue({ id: 'e1', drawnAt: null })
+    prisma.raffleEntry.findMany.mockResolvedValue(makeEntries(10))
+    prisma.rafflePrize.findMany.mockResolvedValue(makePrizes(5))
+
+    const result = await drawRaffleAction()
+
+    expect(result.ok).toBe(true)
+    expect(result.ok === true && result.data).toHaveLength(5)
+  })
+
+  it('mascara um defeito inesperado em vez de vazá-lo para a tela', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    getSession.mockResolvedValue(adminSession)
+    prisma.raffleEvent.findFirst.mockRejectedValue(
+      new Error('connect ECONNREFUSED postgresql://user:senha@host/db')
+    )
+
+    const result = await drawRaffleAction()
+
+    expect(result.ok).toBe(false)
+    expect(result.ok === false && result.error).toBe(
+      'Erro inesperado. Tente novamente em instantes.'
+    )
+    expect(result.ok === false && result.error).not.toMatch(/senha|postgresql/i)
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
+  })
+
+  it('propaga a recusa de transferência com o texto intacto', async () => {
+    getSession.mockResolvedValue(userSession())
+    prisma.rafflePrize.findUnique.mockResolvedValue(null)
+
+    const result = await transferPrizeAction('p1', 'u2')
+
+    expect(result).toEqual({ ok: false, error: expect.stringMatching(/não encontrado/i) })
   })
 })

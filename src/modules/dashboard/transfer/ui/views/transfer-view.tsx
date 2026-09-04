@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { ArrowRight, Search, Check, X, Gift, AlertTriangle } from 'lucide-react'
-import { transferPrize } from '@/actions/raffle'
+import { transferPrizeAction } from '@/actions/raffle'
 import { useRouter } from 'next/navigation'
 
 interface User {
@@ -49,15 +49,16 @@ export function TransferView({ userPrize, participants, currentUser }: Props) {
     if (!userPrize || !selected) return
     setError(null)
     startTransition(async () => {
-      try {
-        await transferPrize(userPrize.id, selected.id)
-        setSuccess(true)
-        setShowConfirm(false)
-        router.refresh()
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Erro ao transferir prêmio')
-        setShowConfirm(false)
+      // Ver a nota em `drawRaffleAction`: a mensagem de recusa precisa voltar
+      // como dado para sobreviver ao mascaramento de produção do Next.js.
+      const result = await transferPrizeAction(userPrize.id, selected.id)
+      setShowConfirm(false)
+      if (!result.ok) {
+        setError(result.error)
+        return
       }
+      setSuccess(true)
+      router.refresh()
     })
   }
 
