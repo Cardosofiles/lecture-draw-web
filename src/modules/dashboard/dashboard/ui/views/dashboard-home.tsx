@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Calendar, Users, Trophy, Clock, Cpu } from 'lucide-react'
-import { TechStackSection } from './TechStackSection'
+import { TechStackSection } from '../components/tech-stack-section'
 
 interface User {
   id: string

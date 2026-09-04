@@ -2,13 +2,15 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { getParticipantCount } from '@/actions/users'
-import { ActivityBar } from '@/components/vscode/ActivityBar'
-import { Sidebar } from '@/components/vscode/Sidebar'
-import { TabBar } from '@/components/vscode/TabBar'
-import { StatusBar } from '@/components/vscode/StatusBar'
-import { Terminal } from '@/components/vscode/Terminal'
-import { MobileNav } from '@/components/vscode/MobileNav'
-import { RaffleNotifier } from '@/components/raffle/RaffleNotifier'
+import {
+  ActivityBar,
+  MobileNav,
+  Sidebar,
+  StatusBar,
+  TabBar,
+  Terminal,
+} from '@/modules/dashboard/layout'
+import { RaffleNotifier } from '@/modules/dashboard/raffle'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth.api.getSession({ headers: await headers() })

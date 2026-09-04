@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { getRaffleResults, getRaffleEvent } from '@/actions/raffle'
-import { RafflePage } from '@/components/raffle/RafflePage'
+import { RaffleView } from '@/modules/dashboard/raffle/ui/views/raffle-view'
 
 export const metadata = { title: 'Sorteio — AI Lecture Raffle' }
 
@@ -13,7 +13,7 @@ export default async function RafflePageRoute() {
   const [prizes, event] = await Promise.all([getRaffleResults(), getRaffleEvent()])
 
   return (
-    <RafflePage
+    <RaffleView
       prizes={prizes}
       event={event}
       currentUserId={session.user.id}

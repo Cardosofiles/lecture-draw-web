@@ -2,7 +2,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { TransferView } from '@/components/raffle/TransferView'
+import { TransferView } from '@/modules/dashboard/transfer/ui/views/transfer-view'
 
 export const metadata = { title: 'Transferir Prêmio — AI Lecture Raffle' }
 
