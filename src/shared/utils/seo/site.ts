@@ -3,6 +3,8 @@
  * `layout.tsx`, `robots.ts`, `sitemap.ts`, `manifest.ts` e geradores de imagem Open Graph
  * leem daqui para garantir coerência semântica e evitar divergências de metadados.
  */
+import { env } from '@/shared/env'
+
 const SITE = {
   name: 'AI Lecture — Spec-Driven Development (SDD)',
   shortName: 'AI Lecture SDD',
@@ -15,12 +17,7 @@ const SITE = {
    * Host canônico sem barra final. Base absoluta para canonical URL, og:url, og:image,
    * sitemap.xml e robots.txt.
    */
-  url: (
-    process.env.SITE_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.BETTER_AUTH_URL ??
-    'https://lecture-draw.unitri.edu.br'
-  ).replace(/\/+$/, ''),
+  url: (env.SITE_URL ?? env.NEXT_PUBLIC_APP_URL).replace(/\/+$/, ''),
   author: {
     name: 'Unitri Tech Community',
     url: 'https://www.unitri.edu.br',

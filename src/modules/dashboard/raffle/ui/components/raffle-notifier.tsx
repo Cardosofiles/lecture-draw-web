@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { WinnerModal } from '@/components/raffle/WinnerModal'
+import { WinnerModal } from '@/modules/dashboard/raffle/ui/components/winner-modal'
 import {
   drawRefreshedKey,
   hasBeenDrawn,
@@ -10,7 +10,7 @@ import {
   pendingWinnerPrize,
   winnerSeenKey,
   type PrizeSnapshot,
-} from '@/lib/raffle-notifications'
+} from '@/modules/dashboard/raffle/data/raffle-notifications'
 
 interface Props {
   currentUserId: string

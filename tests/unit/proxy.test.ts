@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { proxy, config } from '@/proxy'
 
@@ -60,6 +60,13 @@ describe('proxy — unauthenticated visitors', () => {
 })
 
 describe('proxy — authenticated visitors', () => {
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json({ user: { id: 'u1', role: 'user' } }))
+    )
+  })
+
   it('lets a signed-in user reach /dashboard', async () => {
     const res = await proxy(request('/dashboard', 'tok'))
     expect(locationOf(res)).toBeNull()
@@ -78,6 +85,18 @@ describe('proxy — authenticated visitors', () => {
   it('ignores an off-site callbackUrl', async () => {
     const res = await proxy(request('/login?callbackUrl=https%3A%2F%2Fevil.example', 'tok'))
     expect(locationOf(res)).toBe('/')
+  })
+})
+
+describe('proxy — invalid or expired sessions', () => {
+  it('allows /login to render and clears stale cookies when session is invalid', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json(null))
+    )
+    const res = await proxy(request('/login', 'expired-tok'))
+    expect(locationOf(res)).toBeNull()
+    expect(res.cookies.get('better-auth.session_token')?.value).toBe('')
   })
 })
 

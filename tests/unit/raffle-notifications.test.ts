@@ -6,7 +6,7 @@ import {
   pendingWinnerPrize,
   winnerSeenKey,
   type PrizeSnapshot,
-} from '@/lib/raffle-notifications'
+} from '@/modules/dashboard/raffle/data/raffle-notifications'
 
 const DRAW_1 = '2026-09-03T22:00:00.000Z'
 const DRAW_2 = '2026-09-03T23:30:00.000Z'

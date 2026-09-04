@@ -1,21 +1,40 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { prisma } from './prisma'
+import { env } from '@/shared/env'
+
+/**
+ * As origens que o Better Auth aceita como destino de callback.
+ *
+ * O `Set` deduplica o caso comum em desenvolvimento, onde BETTER_AUTH_URL e
+ * NEXT_PUBLIC_APP_URL são ambos `http://localhost:3000`. Os dois literais de
+ * localhost só entram fora de produção — em produção, listar localhost como
+ * origem confiável é superfície de ataque sem contrapartida.
+ */
+const trustedOrigins = Array.from(
+  new Set([
+    env.BETTER_AUTH_URL,
+    env.NEXT_PUBLIC_APP_URL,
+    ...(env.NODE_ENV === 'production' ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000']),
+  ])
+)
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
-  baseURL: process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
-  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
     },
   },
+  trustedOrigins,
+
   // A plateia inteira sai pelo mesmo IP do NAT da rede do local, então a chave
   // do rate limit ("<ip>|<path>") é UMA para os ~400 participantes, não uma por
   // pessoa. Os defaults do Better Auth (3 req/10s em /sign-in*, 100 req/10s no
@@ -63,8 +82,14 @@ export const auth = betterAuth({
           // Auto-enroll new users — but admins are excluded from the raffle.
           // `role` is always its "user" default at create time (the seed promotes
           // the admin afterwards), so the admin has to be spotted by e-mail.
-          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
-          if (adminEmail && user.email.toLowerCase() === adminEmail) {
+          //
+          // Lido de `process.env` a cada chamada, e não do `env` validado: o
+          // schema resolve os valores uma única vez, no import, e a suíte de
+          // integração troca ADMIN_EMAIL em runtime (`vi.stubEnv`) para exercitar
+          // este ramo sem recriar o admin real. A presença e o formato continuam
+          // garantidos no boot por `src/shared/env`.
+          const adminEmail = (process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL).toLowerCase()
+          if (user.email?.toLowerCase() === adminEmail) {
             await prisma.user.update({
               where: { id: user.id },
               data: { role: 'admin', isParticipant: false },
