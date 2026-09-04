@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="cyber-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a1426" />
+      <stop offset="100%" stop-color="#03060c" />
+    </linearGradient>
+    <linearGradient id="neon-border" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#ff39d2" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#cyber-bg)" />
+  <rect x="1" y="1" width="30" height="30" rx="6" stroke="url(#neon-border)" stroke-width="1.8" />
+  <path d="M7 9L14 16L7 23" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <line x1="17" y1="23" x2="25" y2="23" stroke="#ff39d2" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="26" cy="6" r="2.2" fill="#2cf2a3" />
+</svg>
