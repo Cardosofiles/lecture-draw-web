@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useTransition, useEffect, useRef } from 'react'
+import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shuffle, Trophy, Loader2, Zap } from 'lucide-react'
 import { drawRaffleAction } from '@/actions/raffle'
+import { mergeServerPrizes } from '@/modules/dashboard/raffle/data/raffle-notifications'
 import { WinnerCard } from '../components/winner-card'
 import { useRouter } from 'next/navigation'
 
@@ -52,17 +53,13 @@ export function RaffleView({ prizes, event, currentUserId, isAdmin }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [localPrizes, setLocalPrizes] = useState(prizes)
-  const localHasDrawnRef = useRef(prizes.some((p) => p.winnerId))
-
-  // Sync when RaffleNotifier triggers router.refresh() and server delivers drawn prizes
-  useEffect(() => {
-    const serverHasDrawn = prizes.some((p) => p.winnerId)
-    if (serverHasDrawn && !localHasDrawnRef.current) {
-      localHasDrawnRef.current = true
-      setLocalPrizes(prizes)
-    }
-  }, [prizes])
+  // O servidor é a fonte da verdade e cada `router.refresh()` — o do
+  // RaffleNotifier quando o sorteio sai, o de uma transferência gravada em
+  // outro lugar — chega como prop nova, sem precisar remontar a tela. O estado
+  // otimista só cobre a janela entre a Server Action devolver os ganhadores e
+  // esse refresh alcançá-la; `mergeServerPrizes` decide qual dos dois vale.
+  const [optimisticPrizes, setOptimisticPrizes] = useState<RafflePrize[] | null>(null)
+  const localPrizes = mergeServerPrizes(optimisticPrizes ?? prizes, prizes)
 
   const hasBeenDrawn = localPrizes.some((p) => p.winnerId)
 
@@ -76,7 +73,7 @@ export function RaffleView({ prizes, event, currentUserId, isAdmin }: Props) {
         setError(result.error)
         return
       }
-      setLocalPrizes(result.data as RafflePrize[])
+      setOptimisticPrizes(result.data as RafflePrize[])
       router.refresh()
     })
   }
