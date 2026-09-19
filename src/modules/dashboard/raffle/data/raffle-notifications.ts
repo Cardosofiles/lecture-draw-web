@@ -45,6 +45,25 @@ export function pendingWinnerPrize(
 }
 
 /**
+ * Qual lista de prêmios a tela deve exibir quando o servidor entrega props
+ * novas. O servidor ganha sempre, com uma única exceção: quando ele ainda não
+ * enxerga o sorteio que a tela já está mostrando.
+ *
+ * Essa exceção existe por causa da janela entre a Server Action devolver os
+ * ganhadores e o `router.refresh()` alcançá-la — adotar o payload antigo nesse
+ * intervalo jogaria os cards de volta para a tela de "aguardando sorteio".
+ * Fora dela, tudo que vem do servidor é mais fresco do que o estado local:
+ * é assim que uma transferência feita em outra aba aparece sem remontar.
+ */
+export function mergeServerPrizes<T extends { winnerId?: string | null }>(
+  current: T[],
+  incoming: T[]
+): T[] {
+  const incomingIsStale = !incoming.some((p) => p.winnerId) && current.some((p) => p.winnerId)
+  return incomingIsStale ? current : incoming
+}
+
+/**
  * Poll delay in ms. Backs off as the wait drags on and adds jitter, so 400 tabs
  * opened at the same moment do not stay locked in step hammering the endpoint.
  */
