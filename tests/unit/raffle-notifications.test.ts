@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   drawRefreshedKey,
   hasBeenDrawn,
+  mergeServerPrizes,
   nextPollDelay,
   pendingWinnerPrize,
   winnerSeenKey,
@@ -139,5 +140,34 @@ describe('poll pacing', () => {
     const delay = nextPollDelay(0, () => 0.5)
     const reqPerSecond = (400 / delay) * 1000
     expect(reqPerSecond).toBeLessThan(60)
+  })
+})
+
+describe('mergeServerPrizes', () => {
+  const undrawn = [prize({ winnerId: null })]
+  const drawn = [prize({ winnerId: 'user-1' })]
+
+  it('takes the server payload while nothing has been drawn', () => {
+    const incoming = [prize({ winnerId: null, description: 'PC Setup #1 — Ubuntu' })]
+    expect(mergeServerPrizes(undrawn, incoming)).toBe(incoming)
+  })
+
+  it('takes the draw when the refresh finally lands', () => {
+    expect(mergeServerPrizes(undrawn, drawn)).toBe(drawn)
+  })
+
+  it('keeps a transfer that arrived on a page already showing the draw', () => {
+    const transferred = [prize({ winnerId: 'user-1', transferredToId: 'user-2' })]
+    expect(mergeServerPrizes(drawn, transferred)).toBe(transferred)
+  })
+
+  it('ignores the pre-draw payload still in flight after the action returned', () => {
+    // A janela entre a Server Action devolver os ganhadores e o router.refresh()
+    // alcançá-la: adotar esse payload voltaria para "aguardando sorteio".
+    expect(mergeServerPrizes(drawn, undrawn)).toBe(drawn)
+  })
+
+  it('accepts a reset that clears the draw only once the screen agrees', () => {
+    expect(mergeServerPrizes(undrawn, undrawn)).toBe(undrawn)
   })
 })
